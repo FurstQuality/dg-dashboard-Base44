@@ -122,7 +122,7 @@ This update supersedes the earlier missing-backup, unconfigured-Google and gener
 - Nine enabled scheduled jobs are preserved in the archive; six call the old Lovable app. Review and retarget jobs before enabling them in the destination. The original export and audit history remain unchanged. The archive has no Vault secret rows; provider settings and secrets still require independent configuration.
 - The backup contains Rogers Lakewood's separate **Main (27 Hole Layout)** with mapped holes and red alternate tees on holes 1, 3 and 4. Hole 2 has no alternate-tee entry in that layout. A separate legacy 45-hole layout and the course's 45-hole summary also remain in the archive. Preserve both during restore and reconcile them using the course-builder rules afterwards; do not delete layouts or rewrite pinned event history as part of import.
 - Destination Google OAuth is enabled and both credentials are present. Auth still has `http://localhost:3000` as Site URL and no redirect allow list. An attempt to update those URLs returned **HTTP 403**; no Auth settings were changed. Credentials do not need to be entered again.
-- Both Base44 onboarding READMEs were read. The installed Base44 MCP connection returns no apps and `app_not_found` for the selected app. Reconnect the account with access to **Mikes workspace** before importing or editing that app.
+- Base44 access is now working through the official CLI. The user's Elite membership belongs to **Mike's Workspace** (`69f19bca9bb88d5af75fba89`), not the separate SmartCaddy workspace used by the MCP connection. The fresh [DG Dashboard app](https://app.base44.com/apps/6ac96e8c9295eff8becd8869/editor/preview) was moved into Mike's Workspace, and 1,947 source files were imported and hash-verified without copying private credentials or database files. No subscription change was necessary. See [App sandbox](app-sandbox.md) for preview/runtime verification and remaining release work.
 
 #### Database password and connection string
 
@@ -135,10 +135,8 @@ See [Supabase connection strings](https://supabase.com/docs/guides/database/conn
 
 #### Auth return URLs
 
-In the destination's **Authentication → URL Configuration**, set Site URL to `https://my-dg-dashboard.base44.app`. Add these exact redirect URLs while preserving any later verified entries:
+The old `my-dg-dashboard.base44.app` address belongs to the earlier app and is no longer the migration target. In the destination's **Authentication → URL Configuration**, use the new app's verified public origin once Base44 assigns it. Do not guess the hostname or use the editor URL as Site URL. Add `/auth-callback` and `/reset-password` on that exact public origin, plus these local development return URLs, while preserving any later verified entries:
 
-- `https://my-dg-dashboard.base44.app/auth-callback`
-- `https://my-dg-dashboard.base44.app/reset-password`
 - `http://127.0.0.1:5180/auth-callback`
 - `http://127.0.0.1:5180/reset-password`
 
