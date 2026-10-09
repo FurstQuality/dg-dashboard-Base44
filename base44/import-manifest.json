@@ -1,7 +1,8 @@
 {
   "appId": "6ac96e8c9295eff8becd8869",
-  "sourceCommit": "c50b961c2bd2d53e7de23bc6ee88ad0568d623a1",
-  "sourceArchive": "f4bf784a23017cfec3c278de5a827c0247225f4ca3cb6e72afdb9f146438d290",
+  "verifiedAt": "2026-10-09T23:37:00.014Z",
+  "sourceReleaseHash": "a222cff12c28a34ae39c08a99c6ae0b5d7d00c18539415e6364a3a68567ee4ad",
+  "sourceGitCommit": "d65f62ea92f09a8727c6043abf1b30280bfef3df",
   "files": [
     {
       "path": ".gitignore",
@@ -33,11 +34,11 @@
     },
     {
       "path": "docs/app-sandbox.md",
-      "sha256": "aa422ec283df9670b4ce1f3894834d7608c3b7005f55f90dacae4764d8f9220c"
+      "sha256": "71cda159d75d013bfe0370ab90805d6054f961b0cd9e4a93a9f7f6d80035345e"
     },
     {
       "path": "docs/app-verification-progress.md",
-      "sha256": "9727194131d14a8cc9c6b6ec330b7d3b51250c95f603f1745f64756735d55e33"
+      "sha256": "f89061b1598877317c2a4e5c8901e5a210edeacaea641a01600d226dade22ddf"
     },
     {
       "path": "docs/beta-stress-test.md",
@@ -121,7 +122,7 @@
     },
     {
       "path": "docs/independent-connections.md",
-      "sha256": "b0746b0b398424d989310831fc4818b0a9cc520a247b4bf3cd6374bd32063486"
+      "sha256": "3bbc633abe6c4353df5167ce38f618813309d4930819df06876ce0f585ae1ac6"
     },
     {
       "path": "docs/master-final-phase-production-completion.md",
@@ -257,11 +258,11 @@
     },
     {
       "path": "package-lock.json",
-      "sha256": "c66c9a9f745ccd21cb7633fade5b3916624bcfaa59c90c527850220bf99d33a0"
+      "sha256": "96953101b971fbfce2fd60b3e5266a484cee01e016e6ff3d9476590692079eb3"
     },
     {
       "path": "package.json",
-      "sha256": "d2f9ae438e84a54d5c4f0b04605d27a6c24e1188adc9f082a31c71f695415948"
+      "sha256": "9377fdbdf536283bb7212baa4ae02bb4870c75da623b0ff98d7a71cfaa309d44"
     },
     {
       "path": "public/dgim.webmanifest",
@@ -6445,7 +6446,7 @@
     },
     {
       "path": "src/server.base44.ts",
-      "sha256": "da148f1e2a002bb37ad15d5a2dcdd04c95dc71ceeb853e4ecd5e9156ae7452c6"
+      "sha256": "578366ca1bc7c8bf425647cbeb040273310863b52bbe7e72039908055f6d547c"
     },
     {
       "path": "src/server.ts",
@@ -7781,7 +7782,7 @@
     },
     {
       "path": "vite.base44.config.ts",
-      "sha256": "28eae81968237dbed33681843979fa315bb8beb966f5cbe612a78e8e599969ad"
+      "sha256": "a8b39ae202aa1f33b5957fd952054205232c60b5916559795f6d4d1d794697ba"
     },
     {
       "path": "vitest.config.ts",
@@ -7789,7 +7790,117 @@
     },
     {
       "path": "base44/config.jsonc",
-      "sha256": "76f87bfb5964ef1e0d91e8d83f8d037a76614e8f597e0702961facec19897082"
+      "sha256": "5b9980e7b42c515db5d3993c7a1123edb2f6644d1b520d6dc0b6fb9fbd80de0d"
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "3f3526014071707772e86882f2d76fa8e0d9f5ce98d5d81fa53b5f347909093a"
     }
-  ]
+  ],
+  "previewChecks": {
+    "appId": "6ac96e8c9295eff8becd8869",
+    "checkedAt": "2026-10-09T23:31:19.893Z",
+    "runtime": "Base44 cloud preview",
+    "browserVerified": false,
+    "authenticatedWorkflowsVerified": false,
+    "passed": true,
+    "results": [
+      {
+        "name": "page shell /",
+        "status": 200,
+        "passed": true,
+        "redirects": 0,
+        "securityHeaders": true
+      },
+      {
+        "name": "page shell /auth",
+        "status": 200,
+        "passed": true,
+        "redirects": 0,
+        "securityHeaders": true
+      },
+      {
+        "name": "page shell /courses",
+        "status": 200,
+        "passed": true,
+        "redirects": 1,
+        "securityHeaders": true
+      },
+      {
+        "name": "page shell /admin/operations",
+        "status": 200,
+        "passed": true,
+        "redirects": 1,
+        "securityHeaders": true
+      },
+      {
+        "name": "getAdminConnections rejects anonymous",
+        "status": 200,
+        "passed": true,
+        "noStore": true
+      },
+      {
+        "name": "saveAdminConnection rejects anonymous",
+        "status": 200,
+        "passed": true,
+        "noStore": true
+      },
+      {
+        "name": "saveAdminConnection rejects cross-site",
+        "status": 403,
+        "passed": true,
+        "noStore": true
+      },
+      {
+        "name": "createCheckoutSession rejects anonymous",
+        "status": 200,
+        "passed": true,
+        "noStore": true
+      },
+      {
+        "name": "createCheckoutSession rejects cross-site",
+        "status": 403,
+        "passed": true,
+        "noStore": true
+      },
+      {
+        "name": "createBillingPortalSession rejects anonymous",
+        "status": 200,
+        "passed": true,
+        "noStore": true
+      },
+      {
+        "name": "createBillingPortalSession rejects cross-site",
+        "status": 403,
+        "passed": true,
+        "noStore": true
+      },
+      {
+        "name": "private file /.dgd-import/preview-private-check.txt",
+        "status": 404,
+        "passed": true
+      },
+      {
+        "name": "private file /@fs/app/.dgd-import/preview-private-check.txt",
+        "status": 403,
+        "passed": true
+      },
+      {
+        "name": "browser uses dedicated Supabase only",
+        "passed": true
+      },
+      {
+        "name": "unconfigured webhook /api/public/stripe-webhook",
+        "status": 503,
+        "passed": true,
+        "noStore": true
+      },
+      {
+        "name": "unconfigured webhook /api/public/iap-webhook",
+        "status": 503,
+        "passed": true,
+        "noStore": true
+      }
+    ]
+  }
 }
