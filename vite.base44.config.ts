@@ -40,6 +40,6 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/.admin-connections.local/**", "**/.migration-data.local/**", "**/.migration-check.local/**", "**/.sandbox/**", "**/.dgd-import/**"] },
+    fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/.admin-connections.local/**", "**/.migration-data.local/**", "**/.migration-check.local/**", "**/.sandbox/**", "**/.dgd-import/**", "**/.dgd-template.local/**"] },
   },
 });
