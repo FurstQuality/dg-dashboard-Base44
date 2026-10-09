@@ -17,7 +17,7 @@ Port 5180 remains the existing app using its current source database; it is not 
 3. Run `npm run sandbox`. This launches the same complete app, including server functions, on loopback port 5190 with hot reload.
 4. In `/admin/sandbox`, save the draft app URL and the separate draft/live Supabase URLs, then choose **Check connection**. These URLs describe existing environments; the form does not provision a database or change runtime credentials.
 5. Navigate and test the app in the preview. **Open full app** follows the currently viewed route and is useful for OAuth, camera/GPS permissions or providers that prohibit embedding.
-6. Run `npm run release:check` when ready to review a version. This performs the test suite, sandbox tests, TypeScript and a production build. A SHA-256 source fingerprint becomes stale when code changes. The report contains no credentials and does not publish anything.
+6. Run `npm run release:check` when ready to review a version. This performs the test suite, sandbox tests, TypeScript, the ordinary production build and the Base44 full-stack build. A SHA-256 source fingerprint becomes stale when code changes, including the Base44 configuration and deployment resources. The report contains no credentials and does not publish anything.
 
 The launcher compares the draft target with known source/production URLs from `.env`, inherited runtime settings and `DGD_PRODUCTION_SUPABASE_URL`. Missing or matching production targets, mismatched browser/server URLs or keys, live Stripe keys and privileged browser keys are rejected. Only operating-system essentials inherit; provider keys must be explicitly configured for the draft. GitHub, Supabase management, Base44, migration and live connection-vault settings are stripped. The draft uses its own encrypted vault inside `.sandbox/`.
 
@@ -39,14 +39,22 @@ DG Dashboard is a TanStack Start app with server functions, API routes, Supabase
 
 The Base44 build reads only `deployment/base44/public-config.json`, containing the dedicated destination's URL and validated public key. It does not load the original `.env`. Private provider keys come from server-only Base44 runtime bindings. Credential-vault persistence is disabled in Base44's temporary filesystem. The dedicated database still requires its reviewed restore, storage transfer and Auth URL configuration. Remote backend edits can sync immediately, so an unpublished frontend alone is not backend/data isolation.
 
+The source import contains 1,947 hash-verified files. The original Base44 scaffold is retained privately in the cloud sandbox, and checkpoint `6ac9752d6572a4c4daed2c26` / commit `516b707f89342b13a69e14bf3853814c53f1b1b0` preserves the completed import. `npm ci` and the Base44 production build succeeded inside the actual cloud sandbox.
+
+Base44's managed preview discovers the ordinary root `vite.config.ts`; the cloud copy therefore re-exports `./vite.base44.config`. Its package scripts use that same configuration, and `base44/config.jsonc` points at Nitro's `.output/public` assets. The local checkout retains its original Vite configuration and uses `npm run dev:base44` / `npm run build:base44` explicitly. Wrangler is included for Nitro's Worker preview emulation. Sandbox commands must pass `--cwd .`: the observed CLI otherwise ran shell commands from `/` instead of `/app`.
+
+The server runtime accepts only the explicitly allowlisted private bindings in `src/server.base44.ts`. Configure `APP_ORIGIN` before enabling payment return URLs; Supabase service access, Stripe/webhook credentials and mobile-purchase webhook credentials remain server-only. These private bindings have not been installed in the new app. A successful build does not establish authenticated workflows, payment readiness or production Worker deployment.
+
+Some existing AI, email and connector routes still use Lovable integration libraries. They are preserved for compatibility, not evidence of independent provider configuration. Migrate and verify those provider workflows before claiming complete Lovable independence.
+
 Before release:
 
-- Finish the cloud import and verify the actual Base44 preview and server runtime against the new app.
+- Complete interactive browser and authenticated workflow checks in the imported Base44 preview after the destination database is restored. Cloud HTTP checks confirm page shells and server access controls, not browser hydration or signed-in workflows.
 - Complete the dedicated Supabase data migration and verify which database the Base44 app uses. Inspect Base44's backend changes separately from frontend publication; no separate local-preview database is requested.
 - Verify the complete server runtime and production deployment target, then wire an explicit release action with a rollback path.
 - Validate authentication, permissions and provider workflows against test accounts and staging data.
 - Configure Apple/Google developer accounts, package signing, store review and the supported billing path for digital subscriptions before mobile submission.
 
-The new Base44 app was created and moved to the verified Elite workspace. Local full-stack compilation passed. Public publication, app-store submission and remote database cutover have not occurred.
+The new Base44 app was created and moved to the verified Elite workspace. Local and cloud full-stack compilation passed. Sixteen cloud HTTP checks passed: four page shells, anonymous admin/billing denials, cross-site denials, private-file protection, destination-only browser database configuration, and disabled unconfigured payment webhooks. Filter normalization redirects were followed before checking page shells; those redirects do not establish browser authentication. The browser automation helper was unavailable, so interactive rendering, hydration and signed-in workflows are not claimed. Public publication, app-store submission and remote database cutover have not occurred.
 
 References: [Base Code](https://docs.base44.com/Getting-Started/base-code), [Base44 site deploy](https://docs.base44.com/developers/references/cli/commands/site-deploy), [app-store packaging](https://docs.base44.com/documentation/building-your-app/uploading-to-app-stores), [Vite environment modes](https://vite.dev/guide/env-and-mode), [GitHub deployment environments](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments).
