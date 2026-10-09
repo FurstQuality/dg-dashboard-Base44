@@ -1,0 +1,1 @@
+ALTER TYPE public.course_feature_type ADD VALUE IF NOT EXISTS 'island_green';

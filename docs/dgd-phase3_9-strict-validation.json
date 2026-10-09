@@ -1,0 +1,370 @@
+{
+ "evalFrom": "2014-10-18",
+ "rounds": 7620,
+ "scored": 6057,
+ "players": 51,
+ "models": {
+  "A_v1": {
+   "mae": {
+    "overall": {
+     "n": 6057,
+     "mae": 5.542,
+     "rmse": 7.206
+    },
+    "cold_start_layout": {
+     "n": 1081,
+     "mae": 7.209,
+     "rmse": 9.118
+    },
+    "post_inactivity_90d": {
+     "n": 270,
+     "mae": 6.128,
+     "rmse": 8.26
+    },
+    "low_data_1_2": {
+     "n": 419,
+     "mae": 5.057,
+     "rmse": 6.932
+    },
+    "established": {
+     "n": 3811,
+     "mae": 5.139,
+     "rmse": 6.575
+    }
+   },
+   "paired_vs_v1": null,
+   "coverage_raw": {
+    "p50": 31.913488525672776,
+    "p80": 54.59798580155192,
+    "p95": 74.3767541687304,
+    "mean_80_width": 10.49545918150921,
+    "mean_log_score": -4.011131085254112
+   },
+   "coverage_holdout": {
+    "scale_fit_on_first_half": 1.6323109599146364,
+    "second_half": {
+     "p50": 44.18223533267781,
+     "p80": 74.36905932481153,
+     "p95": 89.87217305801377,
+     "mean_80_width": 15.243486892320654,
+     "mean_log_score": -3.380772563780601
+    }
+   },
+   "big_moves_gt3": 153,
+   "post_round": null
+  },
+  "F_old_leaky": {
+   "mae": {
+    "overall": {
+     "n": 6057,
+     "mae": 5.321,
+     "rmse": 6.914
+    },
+    "cold_start_layout": {
+     "n": 1081,
+     "mae": 6.331,
+     "rmse": 8.135
+    },
+    "post_inactivity_90d": {
+     "n": 270,
+     "mae": 5.637,
+     "rmse": 7.594
+    },
+    "low_data_1_2": {
+     "n": 419,
+     "mae": 4.741,
+     "rmse": 6.425
+    },
+    "established": {
+     "n": 3811,
+     "mae": 5.092,
+     "rmse": 6.52
+    }
+   },
+   "paired_vs_v1": {
+    "n": 6057,
+    "mean_abs_err_diff": -0.2210875999418921,
+    "ci95": [
+     -0.26704610367530174,
+     -0.18668806849155395
+    ],
+    "rounds_better_pct": 53.44229816740961,
+    "rounds_tied": 0,
+    "players_better_pct": 94.11764705882354
+   },
+   "coverage_raw": {
+    "p50": 52.20406141654284,
+    "p80": 81.29437015023939,
+    "p95": 93.70975730559682,
+    "mean_80_width": 17.785582962950784,
+    "mean_log_score": -3.358677740803648
+   },
+   "coverage_holdout": {
+    "scale_fit_on_first_half": 0.9112219459065986,
+    "second_half": {
+     "p50": 46.80432645034415,
+     "p80": 74.8934775483448,
+     "p95": 90.62602425434284,
+     "mean_80_width": 14.83543591003112,
+     "mean_log_score": -3.3413090690611655
+    }
+   },
+   "big_moves_gt3": 53,
+   "post_round": null,
+   "players_better": "48/51"
+  },
+  "F_strict": {
+   "mae": {
+    "overall": {
+     "n": 6057,
+     "mae": 5.38,
+     "rmse": 6.982
+    },
+    "cold_start_layout": {
+     "n": 1081,
+     "mae": 6.663,
+     "rmse": 8.46
+    },
+    "post_inactivity_90d": {
+     "n": 270,
+     "mae": 5.653,
+     "rmse": 7.651
+    },
+    "low_data_1_2": {
+     "n": 419,
+     "mae": 4.766,
+     "rmse": 6.443
+    },
+    "established": {
+     "n": 3811,
+     "mae": 5.088,
+     "rmse": 6.516
+    }
+   },
+   "paired_vs_v1": {
+    "n": 6057,
+    "mean_abs_err_diff": -0.16224890425546973,
+    "ci95": [
+     -0.19422373286908998,
+     -0.12664445635831462
+    ],
+    "rounds_better_pct": 53.34323922734027,
+    "rounds_tied": 0,
+    "players_better_pct": 86.27450980392157
+   },
+   "coverage_raw": {
+    "p50": 52.05547300643883,
+    "p80": 81.45946838368829,
+    "p95": 93.79230642232127,
+    "mean_80_width": 18.035346423949257,
+    "mean_log_score": -3.3669449976378827
+   },
+   "coverage_holdout": {
+    "scale_fit_on_first_half": 0.9091710406860984,
+    "second_half": {
+     "p50": 46.869878728285805,
+     "p80": 75.54900032776139,
+     "p95": 90.78990494919698,
+     "mean_80_width": 15.165405965297085,
+     "mean_log_score": -3.351257355815059
+    }
+   },
+   "big_moves_gt3": 54,
+   "post_round": {
+    "n_with_field": 3008,
+    "baseline_vs_pdga": {
+     "pearson": 0.7354,
+     "spearman": 0.7197
+    },
+    "contextual_vs_pdga": {
+     "pearson": 0.8468,
+     "spearman": 0.8461
+    },
+    "ctx_expected_mae": 3.995,
+    "mean_abs_adjustment": 1.902
+   },
+   "players_better": "44/51"
+  },
+  "F_strict_ctxupd": {
+   "mae": {
+    "overall": {
+     "n": 6057,
+     "mae": 5.351,
+     "rmse": 6.946
+    },
+    "cold_start_layout": {
+     "n": 1081,
+     "mae": 6.616,
+     "rmse": 8.396
+    },
+    "post_inactivity_90d": {
+     "n": 270,
+     "mae": 5.572,
+     "rmse": 7.536
+    },
+    "low_data_1_2": {
+     "n": 419,
+     "mae": 4.755,
+     "rmse": 6.441
+    },
+    "established": {
+     "n": 3811,
+     "mae": 5.061,
+     "rmse": 6.483
+    }
+   },
+   "paired_vs_v1": {
+    "n": 6057,
+    "mean_abs_err_diff": -0.19125050478939754,
+    "ci95": [
+     -0.22112607467170706,
+     -0.16138927691371566
+    ],
+    "rounds_better_pct": 54.43288756810302,
+    "rounds_tied": 0,
+    "players_better_pct": 88.23529411764706
+   },
+   "coverage_raw": {
+    "p50": 52.369159649991744,
+    "p80": 81.24484068020472,
+    "p95": 94.00693412580486,
+    "mean_80_width": 17.975688041086052,
+    "mean_log_score": -3.3618295413433317
+   },
+   "coverage_holdout": {
+    "scale_fit_on_first_half": 0.9148985968670494,
+    "second_half": {
+     "p50": 46.93543100622747,
+     "p80": 75.4506719108489,
+     "p95": 91.05211406096362,
+     "mean_80_width": 15.16588169415764,
+     "mean_log_score": -3.3412037581773553
+    }
+   },
+   "big_moves_gt3": 47,
+   "post_round": {
+    "n_with_field": 3008,
+    "baseline_vs_pdga": {
+     "pearson": 0.7361,
+     "spearman": 0.7209
+    },
+    "contextual_vs_pdga": {
+     "pearson": 0.8507,
+     "spearman": 0.8514
+    },
+    "ctx_expected_mae": 3.905,
+    "mean_abs_adjustment": 1.951
+   },
+   "players_better": "45/51"
+  },
+  "A_strict_ctxupd": {
+   "mae": {
+    "overall": {
+     "n": 6057,
+     "mae": 5.48,
+     "rmse": 7.138
+    },
+    "cold_start_layout": {
+     "n": 1081,
+     "mae": 7.112,
+     "rmse": 8.995
+    },
+    "post_inactivity_90d": {
+     "n": 270,
+     "mae": 5.943,
+     "rmse": 8.035
+    },
+    "low_data_1_2": {
+     "n": 419,
+     "mae": 5.035,
+     "rmse": 6.901
+    },
+    "established": {
+     "n": 3811,
+     "mae": 5.082,
+     "rmse": 6.523
+    }
+   },
+   "paired_vs_v1": {
+    "n": 6057,
+    "mean_abs_err_diff": -0.06235859683069783,
+    "ci95": [
+     -0.08844565300986332,
+     -0.03699452728906592
+    ],
+    "rounds_better_pct": 53.37625887403005,
+    "rounds_tied": 0,
+    "players_better_pct": 74.50980392156863
+   },
+   "coverage_raw": {
+    "p50": 32.5408618127786,
+    "p80": 55.67112431896979,
+    "p95": 74.85553904573221,
+    "mean_80_width": 10.51524785290492,
+    "mean_log_score": -3.9763114494635428
+   },
+   "coverage_holdout": {
+    "scale_fit_on_first_half": 1.6064705848956298,
+    "second_half": {
+     "p50": 45.362176335627666,
+     "p80": 74.17240249098656,
+     "p95": 89.97050147492625,
+     "mean_80_width": 15.039357607047013,
+     "mean_log_score": -3.3653474532493703
+    }
+   },
+   "big_moves_gt3": 94,
+   "post_round": {
+    "n_with_field": 3008,
+    "baseline_vs_pdga": {
+     "pearson": 0.7318,
+     "spearman": 0.7169
+    },
+    "contextual_vs_pdga": {
+     "pearson": 0.8917,
+     "spearman": 0.8907
+    },
+    "ctx_expected_mae": 3.611,
+    "mean_abs_adjustment": 2.895
+   },
+   "players_better": "38/51"
+  }
+ },
+ "baselines": {
+  "overall": {
+   "layout_only": 6.107,
+   "player_long_term": 5.604,
+   "recent_10": 5.631,
+   "recent_20": 5.566,
+   "player_plus_layout": 5.565
+  },
+  "cold_start_layout": {
+   "layout_only": 7.39,
+   "player_long_term": 7.051,
+   "recent_10": 7.087,
+   "recent_20": 7.019,
+   "player_plus_layout": 6.989
+  },
+  "post_inactivity_90d": {
+   "layout_only": 6.251,
+   "player_long_term": 6.001,
+   "recent_10": 6.064,
+   "recent_20": 5.974,
+   "player_plus_layout": 5.955
+  },
+  "low_data_1_2": {
+   "layout_only": 5.431,
+   "player_long_term": 5.961,
+   "recent_10": 6.044,
+   "recent_20": 5.99,
+   "player_plus_layout": 5.885
+  },
+  "established": {
+   "layout_only": 5.938,
+   "player_long_term": 5.177,
+   "recent_10": 5.18,
+   "recent_20": 5.103,
+   "player_plus_layout": 5.163
+  }
+ }
+}

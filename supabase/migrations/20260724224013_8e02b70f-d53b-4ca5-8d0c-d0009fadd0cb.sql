@@ -1,0 +1,1 @@
+ALTER TABLE public.user_theme_prefs ADD COLUMN IF NOT EXISTS prefs jsonb NOT NULL DEFAULT '{}'::jsonb;

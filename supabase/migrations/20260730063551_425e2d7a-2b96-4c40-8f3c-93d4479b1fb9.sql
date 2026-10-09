@@ -1,0 +1,1 @@
+UPDATE public.beta_program SET is_enabled = true, show_banner = true, updated_at = now() WHERE id = true;

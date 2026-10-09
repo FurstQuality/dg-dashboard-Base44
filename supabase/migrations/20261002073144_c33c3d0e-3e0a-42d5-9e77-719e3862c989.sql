@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.canonicalize_user_rounds(uuid) FROM authenticated;

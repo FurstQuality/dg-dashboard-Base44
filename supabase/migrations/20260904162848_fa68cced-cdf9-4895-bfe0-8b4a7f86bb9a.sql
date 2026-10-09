@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.repost_post(uuid, text) FROM anon;

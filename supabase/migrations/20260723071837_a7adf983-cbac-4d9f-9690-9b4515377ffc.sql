@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.on_round_score_shot_stats() FROM PUBLIC, anon, authenticated;

@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS public.scheduled_events_user_range_idx;

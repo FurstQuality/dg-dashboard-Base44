@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /home
+Disallow: /admin
+Disallow: /settings
+Disallow: /reset-password
+Disallow: /auth-callback
+
+Sitemap: https://dgdashboard.app/sitemap.xml

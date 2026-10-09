@@ -1,0 +1,11 @@
+{
+  "name": "course-builder-db-checks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test publication.check.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}

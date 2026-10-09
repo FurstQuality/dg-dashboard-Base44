@@ -1,0 +1,1 @@
+ALTER TABLE public.external_rounds ALTER COLUMN score DROP NOT NULL;

@@ -1,0 +1,23 @@
+insert into tracker_event_rounds (event_id,round_number,division,pool,course_name,course_layout) values
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',1,'MA1','P','Eureka Temp','Eureka Temp'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',1,'MA1','Q','Wildlife Prairie Park','Wildlife-MA1'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',1,'MA2','R','Kennel Lake','Kennel Lake Long'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',1,'MA2','S','Brady Park','Brady'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',1,'MA3','T','Maxwell Park Disc Golf Course','Maxwell'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',1,'MA3','U','Lake Eureka Disc Golf Course','Eureka Perm'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',1,'MA3','V','Megiddo Disc Golf Course','Westwood'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',2,'MA1','P','McNaughton Park','McNaughton'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',2,'MA1','Q','Eureka Temp','Eureka Temp'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',2,'MA2','R','Northwood Blue','Northwood Blue-short - 8'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',2,'MA2','S','Kennel Lake','Kennel Lake Long'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',2,'MA3','T','Lake Eureka Disc Golf Course','Eureka Perm'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',2,'MA3','U','Megiddo Disc Golf Course','Westwood'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',2,'MA3','V','Maxwell Park Disc Golf Course','Maxwell'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',3,'MA1','P','Wildlife Prairie Park','Wildlife-MA1'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',3,'MA1','Q','McNaughton Park','McNaughton'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',3,'MA2','R','Brady Park','Brady'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',3,'MA2','S','Northwood Blue','Northwood Blue-short - 8'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',3,'MA3','T','Megiddo Disc Golf Course','Westwood'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',3,'MA3','U','Maxwell Park Disc Golf Course','Maxwell'),
+('01d0057d-c61b-4c8d-a92a-ab687fddeb1a',3,'MA3','V','Lake Eureka Disc Golf Course','Eureka Perm')
+on conflict (event_id,round_number,division,pool) do update set course_name=excluded.course_name, course_layout=excluded.course_layout;

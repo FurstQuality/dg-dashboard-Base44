@@ -1,0 +1,1 @@
+ALTER TABLE public.league_events ADD COLUMN IF NOT EXISTS rounds smallint NOT NULL DEFAULT 1;

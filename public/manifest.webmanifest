@@ -1,0 +1,24 @@
+{
+  "name": "DG Dashboard | SmartCaddy",
+  "short_name": "DG Dashboard",
+  "description": "Your Disc Golf. All in One Place.",
+  "start_url": "/home",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0f0e",
+  "theme_color": "#0b0f0e",
+  "categories": ["sports", "lifestyle", "social"],
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Start Round", "short_name": "Score", "url": "/rounds/new", "description": "Start scoring a round" },
+    { "name": "Community", "short_name": "Community", "url": "/community", "description": "Feed, clubs, and friends" },
+    { "name": "Events", "short_name": "Events", "url": "/play", "description": "Tournaments and leagues" },
+    { "name": "SmartCaddy", "short_name": "Ace", "url": "/smartcaddy", "description": "Ask Ace for strategy" }
+  ]
+}

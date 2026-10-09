@@ -1,0 +1,1 @@
+ALTER TABLE public.dgcr_courses ADD COLUMN IF NOT EXISTS course_type text;

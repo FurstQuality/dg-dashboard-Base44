@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.guard_event_ownership_change() FROM anon, authenticated, public;

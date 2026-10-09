@@ -1,0 +1,2 @@
+DELETE FROM public.external_rounds WHERE played_on < '2015-01-01' OR played_on > (CURRENT_DATE + INTERVAL '30 days');
+DELETE FROM public.pdga_events WHERE event_date < '2015-01-01' OR event_date > (CURRENT_DATE + INTERVAL '365 days');

@@ -1,0 +1,2 @@
+ALTER TABLE public.league_events ADD COLUMN IF NOT EXISTS layout_id uuid REFERENCES public.course_layouts(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS league_events_layout_idx ON public.league_events(layout_id);

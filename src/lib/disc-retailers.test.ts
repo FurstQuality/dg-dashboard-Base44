@@ -1,0 +1,3 @@
+import {it,expect} from 'vitest';
+import {parseDiscRetailers} from './disc-retailers';
+it('imports explicit disc retailers and safe source links, without assuming generic sports stores sell discs',()=>{const shop={type:'node',id:1,lat:41,lon:-87,tags:{name:'Shop',shop:'sports',sport:'disc_golf',website:'javascript:bad()'}};const rows=parseDiscRetailers({elements:[shop,shop,{...shop,id:2,tags:{shop:'sports'}},{...shop,id:3,tags:{...shop.tags,disused:'yes'}},{...shop,id:4,lat:NaN}]});expect(rows).toHaveLength(1);expect(rows[0].website).toBeNull();expect(rows[0].sourceUrl).toBe('https://www.openstreetmap.org/node/1');});

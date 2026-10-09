@@ -1,0 +1,1 @@
+DELETE FROM public.external_rounds WHERE source = 'pdga' AND played_on < DATE '2010-01-01';

@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.friend_suggestions(uuid, integer) TO authenticated;

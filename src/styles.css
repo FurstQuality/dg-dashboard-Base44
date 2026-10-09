@@ -1,0 +1,1048 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+/* Scorecard: a sideways phone (short landscape) uses the phone layout, not the tablet one. */
+@custom-variant phone {
+  @media (max-width: 767.98px) { @slot; }
+  @media (orientation: landscape) and (max-height: 500px) { @slot; }
+}
+@custom-variant wide {
+  @media (min-width: 768px) and (min-height: 501px) { @slot; }
+  @media (min-width: 768px) and (orientation: portrait) { @slot; }
+}
+@custom-variant land {
+  @media (orientation: landscape) and (max-height: 500px) { @slot; }
+}
+
+@theme inline {
+  /* Readable type scale — every step is lifted above Tailwind's defaults so
+     labels, tables, chips, and helper text stay legible outdoors and on
+     high-density screens. Body copy floors at 15px, small text at 14px. */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.4rem;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.6rem;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.7rem;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.85rem;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 2.1rem;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --font-sans:
+    "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-display:
+    "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  --font-graphic: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chain: var(--chain);
+  --color-chain-foreground: var(--chain-foreground);
+  --color-fairway: var(--fairway);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* DG Dashboard contract token mappings — expose as utilities */
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-interactive: var(--surface-interactive);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-teal: var(--brand-teal);
+  --color-competitive-gold: var(--competitive-gold);
+  --color-community-green: var(--community-green);
+  --color-tier-green: var(--tier-green);
+  --color-tier-yellow: var(--tier-yellow);
+  --color-tier-bronze: var(--tier-bronze);
+  --color-tier-silver: var(--tier-silver);
+  --color-tier-gold: var(--tier-gold);
+  --color-coaching-violet: var(--coaching-violet);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --radius-control: var(--radius-control);
+  --radius-input: var(--radius-input);
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
+}
+
+/* Ace brand: #0E1E1A base, #76D64A chain-lime, #24BBFF sky, #F4A63C orange */
+:root {
+  --radius: 1rem;
+  --background: #0e1e1a;
+  --foreground: #f5fbf3;
+  --card: #1f2124;
+  --card-foreground: #f5fbf3;
+  --popover: #1f2124;
+  --popover-foreground: #f5fbf3;
+  --primary: #76d64a;
+  --primary-foreground: #0e1e1a;
+  --secondary: #24bbff;
+  --secondary-foreground: #0e1e1a;
+  --muted: #232729;
+  --muted-foreground: #d0dad4;
+  --accent: #f4a63c;
+  --accent-foreground: #1f1207;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: #76d64a;
+  --chain: #76d64a;
+  --chain-foreground: #0e1e1a;
+  --fairway: #2f6b3a;
+  --chart-1: #76d64a;
+  --chart-2: #24bbff;
+  --chart-3: #f4a63c;
+  --chart-4: #ef4444;
+  --chart-5: #b48cff;
+  --sidebar: #131f1b;
+  --sidebar-foreground: #f5fbf3;
+  --sidebar-primary: #76d64a;
+  --sidebar-primary-foreground: #0e1e1a;
+  --sidebar-accent: #1f2124;
+  --sidebar-accent-foreground: #f5fbf3;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #76d64a;
+  --shadow-pop: 0 6px 0 0 rgba(0, 0, 0, 0.55), 0 12px 32px -10px rgba(0, 0, 0, 0.6);
+  --gradient-hero: linear-gradient(135deg, #76d64a 0%, #24bbff 55%, #f4a63c 100%);
+  --gradient-chain: linear-gradient(135deg, #76d64a, #2f6b3a);
+
+  /* ── DG Dashboard design contract tokens (additive) ──────────────────────── */
+
+  /* Surface set — layered dark canvas */
+  --canvas: #0e1e1a;
+  --surface: #1f2124;
+  --surface-raised: #262a2d;
+  --surface-interactive: #2e3336;
+  --border-subtle: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.28);
+
+  /* Section accent set — mapped to DG Dashboard personality */
+  --brand-cyan: #24bbff;
+  --brand-teal: #2dd4bf;
+  --competitive-gold: #f4a63c;
+  --community-green: #76d64a;
+  /* DGD Tier set — accessible on dark surfaces; always paired with a text label + icon */
+  --tier-green: #4ade80;
+  --tier-yellow: #facc15;
+  --tier-bronze: #d08b5b;
+  --tier-silver: #cbd5e1;
+  --tier-gold: #f5b83d;
+  --coaching-violet: #a78bfa;
+
+  /* Status set with foreground pair */
+  --success: #34d399;
+  --success-foreground: #052e1d;
+  --warning: #f59e0b;
+  --warning-foreground: #2a1a02;
+  --danger: #ef4444;
+  --danger-foreground: #2a0606;
+  --info: #38bdf8;
+  --info-foreground: #041e2c;
+
+  /* Radius scale — controls / inputs / cards / pills */
+  --radius-control: 10px;
+  --radius-input: 12px;
+  --radius-card: 16px;
+  --radius-pill: 9999px;
+
+  /* Spacing scale — 4/8/12/16/20/24/32/40/48 (documented for JS/inline usage) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+
+  /* Chart palette — Recharts references these via var() instead of raw hex */
+  --chart-primary: #76d64a;
+  --chart-secondary: #24bbff;
+  --chart-tertiary: #f4a63c;
+  --chart-accent: #a78bfa;
+  --chart-neutral: #64748b;
+  --chart-grid: #1e293b;
+  --chart-axis: #94a3b8;
+  --chart-danger: #ef4444;
+
+  /* Community category accents (existing — kept) */
+  --accent-friends: #22d3ee; /* cyan */
+  --accent-trackers: #a78bfa; /* violet */
+  --accent-clubs: #76d64a; /* green (matches primary) */
+  --accent-events: #f4a63c; /* gold (matches accent) */
+  --accent-messages: #2dd4bf; /* teal */
+}
+
+.dark {
+  --background: oklch(0.15 0.04 158);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Force integer pixel snapping for crisp lines/borders on non-retina screens. */
+    text-rendering: optimizeLegibility;
+  }
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    /* Higher base resolution: every rem-based size in the app scales from
+       17px so body copy, labels, and controls read larger and crisper.
+       The personalization text scale still multiplies on top. */
+    font-size: calc(17px * var(--text-scale, 1) / var(--app-zoom, 1));
+
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern", "liga", "calt", "ss01";
+    line-height: 1.55;
+    /* Avoid subpixel jitter from GPU compositing of body-level text. */
+    transform: none;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    font-feature-settings: "kern", "liga", "calt";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-wrap: balance;
+  }
+  /* Fixed rem sizes — no vw-based clamps that land on fractional pixels. */
+  h1 {
+    font-size: 2.25rem;
+  }
+  h2 {
+    font-size: 1.75rem;
+  }
+  h3 {
+    font-size: 1.375rem;
+  }
+  h4 {
+    font-size: 1.125rem;
+  }
+
+  /* Crisp 1px borders/rules across the app. */
+  hr {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* SVG icons should snap to pixel grid, not scale with subpixel offsets. */
+  svg {
+    shape-rendering: geometricPrecision;
+  }
+
+  img {
+    image-rendering: auto;
+  }
+  /* Mascot art is a 1024px vector-style illustration — high-quality downscale, no shadow bleed. */
+  img[data-mascot="true"] {
+    image-rendering: auto;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+}
+
+@utility font-graphic {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@utility text-hero {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--color-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-wrap: balance;
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility border-pop {
+  border-width: 2px;
+  border-color: oklch(0 0 0 / 45%);
+  box-shadow: var(--shadow-pop);
+}
+
+@utility card-pop {
+  background-color: var(--color-card);
+  border: 2px solid oklch(0 0 0 / 40%);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-pop);
+}
+
+@utility chip-pop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 9999px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  border: 2px solid oklch(0 0 0 / 45%);
+  box-shadow: 0 3px 0 0 oklch(0 0 0 / 45%);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+/* Dashboard grid resize handles — corner-only, kept inside the widget so they
+   don't get clipped by the widget's rounded overflow-hidden container. */
+.layout.is-editing .react-grid-item {
+  overflow: visible;
+}
+.layout.is-editing .react-resizable-handle {
+  z-index: 30;
+  background-image: none;
+  opacity: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  transition: opacity 120ms ease;
+}
+.layout.is-editing .react-grid-item:hover .react-resizable-handle,
+.layout.is-editing .react-grid-item.react-grid-placeholder ~ * .react-resizable-handle,
+.layout.is-editing .react-resizable-handle:focus,
+.layout.is-editing .react-resizable-handle:hover {
+  opacity: 1;
+}
+.layout.is-editing .react-resizable-handle::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: var(--color-primary);
+  border: 2px solid var(--color-background);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+.layout.is-editing .react-resizable-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+  transform: none;
+}
+.layout.is-editing .react-resizable-handle-sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+  transform: none;
+}
+.layout.is-editing .react-resizable-handle-ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+  transform: none;
+}
+.layout.is-editing .react-resizable-handle-nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+  transform: none;
+}
+
+/* Placeholder styling while dragging/resizing */
+.layout.is-editing .react-grid-placeholder {
+  background: color-mix(in oklch, var(--color-primary) 25%, transparent) !important;
+  border: 2px dashed var(--color-primary);
+  border-radius: 1rem;
+  opacity: 1 !important;
+}
+
+/* --- Personalization: density + accessibility ---------------------------- */
+/* Density scales vertical rhythm (paddings, gaps) across shadcn primitives.
+   Text scale is applied by shifting html font-size in JS. */
+:root[data-density="compact"] {
+  --density-pad: 0.75;
+  --density-gap: 0.75;
+}
+:root[data-density="cozy"] {
+  --density-pad: 1;
+  --density-gap: 1;
+}
+:root[data-density="comfortable"] {
+  --density-pad: 1.25;
+  --density-gap: 1.2;
+}
+
+:root[data-density="compact"] .p-4 {
+  padding: calc(1rem * 0.75);
+}
+:root[data-density="comfortable"] .p-4 {
+  padding: calc(1rem * 1.25);
+}
+:root[data-density="compact"] .p-6 {
+  padding: calc(1.5rem * 0.75);
+}
+:root[data-density="comfortable"] .p-6 {
+  padding: calc(1.5rem * 1.25);
+}
+:root[data-density="compact"] .gap-4 {
+  gap: calc(1rem * 0.75);
+}
+:root[data-density="comfortable"] .gap-4 {
+  gap: calc(1rem * 1.2);
+}
+:root[data-density="compact"] .gap-6 {
+  gap: calc(1.5rem * 0.75);
+}
+:root[data-density="comfortable"] .gap-6 {
+  gap: calc(1.5rem * 1.2);
+}
+:root[data-density="compact"] .space-y-4 > * + * {
+  margin-top: calc(1rem * 0.75);
+}
+:root[data-density="comfortable"] .space-y-4 > * + * {
+  margin-top: calc(1rem * 1.2);
+}
+:root[data-density="compact"] .space-y-6 > * + * {
+  margin-top: calc(1.5rem * 0.75);
+}
+:root[data-density="comfortable"] .space-y-6 > * + * {
+  margin-top: calc(1.5rem * 1.2);
+}
+
+/* Reduced motion: user-controlled, honored globally. */
+:root[data-reduced-motion="true"] *,
+:root[data-reduced-motion="true"] *::before,
+:root[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High contrast: lift borders and dampen muted text so low-vision users
+   don't lose interactive edges. */
+:root[data-high-contrast="true"] {
+  --border: color-mix(in oklch, var(--foreground) 45%, transparent);
+  --input: color-mix(in oklch, var(--foreground) 45%, transparent);
+  --muted-foreground: color-mix(in oklch, var(--foreground) 85%, transparent);
+  --ring: var(--foreground);
+}
+:root[data-high-contrast="true"] *:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+/* ── Personalization: density, motion, high-contrast, navigation ─────── */
+
+:root[data-density="compact"] {
+  --cl-gap-1: 4px;
+  --cl-gap-2: 6px;
+  --cl-gap-3: 10px;
+  --cl-gap-4: 12px;
+  --cl-gap-5: 16px;
+}
+:root[data-density="cozy"] {
+  --cl-gap-1: 4px;
+  --cl-gap-2: 8px;
+  --cl-gap-3: 12px;
+  --cl-gap-4: 16px;
+  --cl-gap-5: 20px;
+}
+:root[data-density="comfortable"] {
+  --cl-gap-1: 6px;
+  --cl-gap-2: 10px;
+  --cl-gap-3: 16px;
+  --cl-gap-4: 22px;
+  --cl-gap-5: 28px;
+}
+
+:root[data-density="compact"] .cl-card {
+  padding: 12px;
+}
+:root[data-density="cozy"] .cl-card {
+  padding: 16px;
+}
+:root[data-density="comfortable"] .cl-card {
+  padding: 22px;
+}
+
+:root[data-reduced-motion="true"] *,
+:root[data-reduced-motion="true"] *::before,
+:root[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+:root[data-high-contrast="true"] {
+  --border: rgba(255, 255, 255, 0.36);
+  --border-subtle: rgba(255, 255, 255, 0.22);
+  --border-strong: rgba(255, 255, 255, 0.55);
+}
+:root.light[data-high-contrast="true"] {
+  --border: rgba(0, 0, 0, 0.36);
+  --border-subtle: rgba(0, 0, 0, 0.22);
+  --border-strong: rgba(0, 0, 0, 0.55);
+}
+
+/* Navigation labels are always shown — personalization never hides data or labels. */
+
+/* Mascot intensity — respected by MascotIllustration wrapper */
+:root[data-mascots="off"] [data-mascot-decoration] {
+  display: none !important;
+}
+:root[data-mascots="subtle"] [data-mascot-decoration] {
+  opacity: 0.55;
+}
+:root[data-mascots="empty-only"] [data-mascot-decoration]:not([data-mascot-empty="true"]) {
+  display: none !important;
+}
+
+/* Scrollbars: blend into background, subtle */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border) / 0.5) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border) / 0.45);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--border) / 0.75);
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile-first primitives */
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left: env(safe-area-inset-left);
+  --safe-right: env(safe-area-inset-right);
+}
+
+@media (max-width: 767px) {
+  /* Prevent iOS auto-zoom on focus for inputs under 16px */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  /* Kill 300ms tap delay, mute gray tap flash */
+  html {
+    touch-action: manipulation;
+  }
+  a,
+  button,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Better momentum scroll on horizontal lists */
+  .mobile-scroll-x {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Utility: safe area padding helpers */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pl-safe {
+  padding-left: env(safe-area-inset-left);
+}
+.pr-safe {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Respect prefers-reduced-motion globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Print output for Event Director kits (tee signs, caddy guide, pack) */
+/* ------------------------------------------------------------------ */
+@media print {
+  /* Hide app chrome so only the kit prints. */
+  body * {
+    visibility: hidden;
+  }
+  .print-kit,
+  .print-kit * {
+    visibility: visible;
+  }
+  .print-kit {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    background: #fff;
+    color: #000;
+  }
+  .print-hide {
+    display: none !important;
+  }
+  .print-page {
+    break-after: page;
+    page-break-after: always;
+    padding: 0.5in;
+  }
+  .print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .print-kit a {
+    color: #000;
+    text-decoration: none;
+  }
+  .print-kit .print-border {
+    border-color: #000 !important;
+  }
+}
+
+@page {
+  size: letter portrait;
+  margin: 0.4in;
+}
+
+/* Leaflet paints its panes and controls at z-index 400-1000, which covered
+   dropdown menus and popovers rendered above the map. Keep map internals in a
+   low band so app overlays (selects, dialogs, tooltips) always win. */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control {
+  z-index: 1 !important;
+}
+.leaflet-container {
+  z-index: 0;
+}
+
+/* Outdoor mode (bright sunlight) for the Round Companion scoring surface.
+   Boosts contrast on glass/muted surfaces and thin borders so scores stay
+   readable at a glance in direct sun. Scoped to the scoring shell only. */
+[data-outdoor="true"] {
+  --background: oklch(0.12 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.16 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.16 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.9 0 0);
+  --border: oklch(0.55 0 0);
+  --input: oklch(0.55 0 0);
+  --secondary: oklch(0.24 0 0);
+  --secondary-foreground: oklch(1 0 0);
+}
+[data-outdoor="true"] * {
+  backdrop-filter: none !important;
+  text-shadow: none !important;
+}
+
+/* --- Legibility floor for hand-tuned tiny type ---------------------------
+   Dozens of components use arbitrary 10–12px sizes for chips, table cells,
+   and metadata. Rather than hand-editing each call site, floor them here so
+   nothing in the app renders below 13px. These rules are intentionally
+   unlayered so they win over Tailwind's utility layer. */
+[class~="text-[10px]"],
+[class~="text-[11px]"],
+[class~="text-[12px]"] {
+  font-size: 0.875rem;
+  line-height: 1.2rem;
+}
+[class~="text-[13px]"],
+[class~="text-[14px]"] {
+  font-size: 0.9375rem;
+  line-height: 1.3rem;
+}
+
+/* ── Live surface layer ────────────────────────────────────────────────────
+   Cards sit on a translucent surface so the branded backdrop (chain rings,
+   mascot silhouettes, aurora wash) reads through every page instead of the
+   app looking like a flat grey dashboard. Unlayered so they win over
+   Tailwind's utility layer. Outdoor mode above still opts out of blur. */
+.bg-card {
+  background-color: color-mix(in oklab, var(--card) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(130%);
+}
+.bg-background\/95,
+.bg-background\/80 {
+  backdrop-filter: blur(16px) saturate(125%);
+}
+
+/* ── Glow utilities ─────────────────────────────────────────────────────── */
+
+/* Bright gradient headline text with a soft brand halo. */
+/* ── Personalization: glow strength + color vibrance ─────────────────────
+   Driven by Settings → Look & feel. Glow utilities read these instead of
+   hard-coded percentages so one control retunes the whole app. */
+:root {
+  --dg-glow-halo: 45%;
+  --dg-glow-edge: 30%;
+  --dg-glow-blur: 22px;
+  --cl-vibrance: 1.1;
+}
+:root[data-glow="off"] {
+  --dg-glow-halo: 0%;
+  --dg-glow-edge: 0%;
+  --dg-glow-blur: 0px;
+}
+:root[data-glow="soft"] {
+  --dg-glow-halo: 26%;
+  --dg-glow-edge: 16%;
+  --dg-glow-blur: 14px;
+}
+:root[data-glow="vivid"] {
+  --dg-glow-halo: 52%;
+  --dg-glow-edge: 32%;
+  --dg-glow-blur: 26px;
+}
+:root[data-glow="max"] {
+  --dg-glow-halo: 80%;
+  --dg-glow-edge: 52%;
+  --dg-glow-blur: 42px;
+}
+/* Monochrome navigation: sections stop tinting cards and nav pills. */
+:root[data-nav-color="mono"] [data-accent-card] {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+@utility text-glow {
+  background-image: var(--gradient-hero);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: saturate(var(--cl-vibrance, 1))
+    drop-shadow(
+      0 0 var(--dg-glow-blur, 22px)
+        color-mix(in oklab, var(--primary) var(--dg-glow-halo, 45%), transparent)
+    );
+}
+
+/* Accent-driven glowing border. Set --nav-accent on the element (or a
+   parent) to recolor the halo. */
+@utility glow-ring {
+  border-color: color-mix(
+    in oklab,
+    var(--nav-accent, var(--primary)) var(--dg-glow-halo, 45%),
+    transparent
+  );
+  box-shadow:
+    0 0 0 1px
+      color-mix(in oklab, var(--nav-accent, var(--primary)) var(--dg-glow-edge, 30%), transparent),
+    0 0 var(--dg-glow-blur, 22px) -4px
+      color-mix(in oklab, var(--nav-accent, var(--primary)) var(--dg-glow-halo, 45%), transparent);
+}
+
+@utility glow-ring-hover {
+  &:hover {
+    border-color: color-mix(in oklab, var(--nav-accent, var(--primary)) 65%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--nav-accent, var(--primary)) 35%, transparent),
+      0 0 26px -4px color-mix(in oklab, var(--nav-accent, var(--primary)) 55%, transparent);
+    transform: translateY(-1px);
+  }
+}
+
+/* Accent-tinted translucent surface for nav cards and emblem tiles. */
+@utility surface-accent {
+  background-image: linear-gradient(
+    140deg,
+    color-mix(in oklab, var(--nav-accent, var(--primary)) 22%, transparent),
+    transparent 65%
+  );
+}
+
+/* ── Ambient motion ───────────────────────────────────────────────────────
+   Slow, low-contrast drift on the branded backdrop only. Respects the
+   app's reduced-motion switch (see [data-reduced-motion] rules above). */
+@keyframes dg-aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -2%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes dg-pulse-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@utility aurora-blob {
+  animation: dg-aurora-drift 26s var(--ease-standard) infinite;
+  filter: blur(70px);
+}
+
+@utility pulse-glow {
+  animation: dg-pulse-glow 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob,
+  .pulse-glow {
+    animation: none;
+  }
+}
+
+/* The branded backdrop layer sits at z-index:-10 behind page content. A
+   background color on <body> would paint over it, so the base canvas color
+   lives on <html> only and body stays transparent. */
+body {
+  background-color: transparent;
+}
+
+/* Bright, high-contrast mascot emblem used as a card/widget corner accent. */
+@utility mascot-emblem-glow {
+  filter: saturate(calc(1.2 * var(--cl-vibrance, 1))) contrast(1.08)
+    drop-shadow(
+      0 0 calc(var(--dg-glow-blur, 22px) * 0.6)
+        color-mix(
+          in oklab,
+          var(--accent-color, var(--primary)) var(--dg-glow-halo, 45%),
+          transparent
+        )
+    );
+}
+
+/* Accent-tinted surface for cards and widgets: keeps the section color present
+   on every panel without hard-coding a color in feature components. */
+@utility accent-panel {
+  border-color: color-mix(in oklab, var(--accent-color, var(--primary)) 38%, var(--border));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--accent-color, var(--primary)) 18%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--accent-color, var(--primary)) 12%, transparent),
+    0 12px 30px -18px color-mix(in oklab, var(--accent-color, var(--primary)) 55%, transparent);
+}
+
+@utility accent-text {
+  color: color-mix(in oklab, var(--accent-color, var(--primary)) 88%, var(--foreground));
+}
+
+/* Every card/widget in the app inherits the active section's accent color from
+   the shell wrapper, so panels stay color-coded with navigation. */
+[data-accent-card] {
+  border-color: color-mix(in oklab, var(--accent-color, var(--primary)) 26%, var(--border));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--accent-color, var(--primary)) 14%, transparent),
+    0 10px 26px -18px color-mix(in oklab, var(--accent-color, var(--primary)) 45%, transparent);
+}
+:root[data-high-contrast="true"] [data-accent-card] {
+  border-color: color-mix(in oklab, var(--accent-color, var(--primary)) 55%, var(--border));
+}
+
+/* ------------------------------------------------------------------ */
+/* App renders at true 100% zoom. Density comes from spacing/padding   */
+/* rules below, not from a CSS zoom transform (which caused stray      */
+/* scrollbars and blurry sub-pixel text).                              */
+/* ------------------------------------------------------------------ */
+:root {
+  --app-zoom: 1;
+}
+
+/* Never let a wide child force a horizontal scrollbar on the page. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Trim dead space inside widget shells so tighter cards read denser. */
+@media (min-width: 768px) {
+  [data-accent-card] > .p-6 {
+    padding: 1rem;
+  }
+  [data-accent-card] > .p-6.pt-0 {
+    padding-top: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Touch targets: on phones and tablets every control keeps a         */
+/* comfortable hit area even when a page passes a tighter height.     */
+/* ------------------------------------------------------------------ */
+@media (pointer: coarse) {
+  button:not([data-no-min-touch]),
+  [role="button"]:not([data-no-min-touch]),
+  [role="tab"],
+  summary,
+  select {
+    min-height: 36px;
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 20px;
+    min-height: 20px;
+  }
+}
+
+/* Hide the scrollbar on horizontally scrollable nav rails. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Microinteractions — short, physical confirmations (check-in, register, score). */
+@keyframes dg-success-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes dg-check-draw {
+  from { stroke-dashoffset: 24; opacity: 0.4; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+.dg-success-pop { animation: dg-success-pop 260ms cubic-bezier(0.2, 0.9, 0.3, 1.3); }
+.dg-success-pop svg { stroke-dasharray: 24; animation: dg-check-draw 300ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .dg-success-pop, .dg-success-pop svg { animation: none; }
+}
+
+/* Grid items default to min-width:auto, so one long word or nowrap row stretches
+   the whole column past the screen. Let them shrink; text truncates/wraps instead. */
+.grid > * { min-width: 0; }
+/* Media never pushes a layout wider than its container. */
+img, video, svg, canvas, iframe { max-width: 100%; }
+
+@keyframes shrink {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* No sideways scrolling anywhere: tables squeeze and wrap instead of scrolling. */
+html,
+body {
+  overflow-x: clip;
+}
+.overflow-x-auto,
+.overflow-x-scroll {
+  overflow-x: visible;
+}
+.overflow-x-auto > table,
+.overflow-x-auto table {
+  min-width: 0 !important;
+  width: 100%;
+}
+@media (max-width: 767px) {
+  .overflow-x-auto th,
+  .overflow-x-auto td {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+}

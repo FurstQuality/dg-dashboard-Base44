@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS setup_progress jsonb NOT NULL DEFAULT '{"done":[],"skipped":[]}'::jsonb;

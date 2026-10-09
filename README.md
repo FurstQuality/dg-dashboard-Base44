@@ -1,62 +1,45 @@
-# Base44 Project
+# Disc-Golf-Dashboard
 
-Use this repository to run and edit the app locally, then publish changes back through Base44.
+DG Dashboard provides disc golf course maps and editing, events, scoring, player statistics, and administration. This codebase is being migrated to the dedicated `FurstQuality/Disc-Golf-Dashboard` repository and Supabase project `aosklgewcakrhuxdynik`.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+The current app still uses the original database while its data is preserved and migration is prepared. The destination project has been verified but has no app data yet. Follow [the migration and connection guide](docs/independent-connections.md) before changing runtime database settings.
 
-## Prerequisites
+## Development
 
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
-5. Install [Deno](https://docs.deno.com/runtime/getting_started/installation/) — the local Base44 backend runs on it.
+Install Node.js and npm, clone this repository, then install the locked dependencies:
 
-Run `base44 --help` (or see the [CLI reference](https://docs.base44.com/developers/references/cli/commands/introduction)) for the full command surface.
-
-## Run Locally
-
-Three commands, from the project root:
-
-```bash
-base44 login   # one-time per machine
-base44 link    # one-time per clone
-base44 dev     # local backend + frontend together
+```sh
+git clone https://github.com/FurstQuality/Disc-Golf-Dashboard.git
+cd Disc-Golf-Dashboard
+npm ci
 ```
 
-Open the frontend URL that `base44 dev` prints (typically `http://localhost:5173`).
+Copy `.env.example` to `.env` and configure the server and browser values for the same populated Supabase project. Keep service-role keys and provider tokens server-only. Start the local preview with:
 
-Notes:
-
-- **Every fresh clone needs `base44 link`.** It writes `base44/.app.jsonc` (the app-id pointer), which is deliberately gitignored. Your app id is in the Builder URL (`app.base44.com/apps/<id>/...`); `base44 link --help` shows the non-interactive flags.
-- **`base44 dev` runs the frontend for you** (via `site.serveCommand` in this repo's `base44/config.jsonc`) — never run `npm run dev` yourself: alone it serves a UI with no backend behind it (`[base44] Proxy not enabled`, every `/api` call fails), and alongside `base44 dev` the second Vite silently takes the next port and you end up looking at the wrong one.
-- **The app must be published at least once for the UI to load under `base44 dev`.** The frontend boots by fetching app settings from the hosted app; before the first publish that fails and every page redirects to login. The local API works regardless.
-- Entities, functions, and auth run locally — entity data is **in-memory only**, wiped when `base44 dev` restarts. Everything else (Core integrations, OAuth login) is forwarded to your deployed app. Full breakdown: [Local development overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview).
-
-## Frontend Only, Hosted Backend
-
-To work on just the frontend against your app's live hosted backend:
-
-```bash
-base44 dev --remote
+```sh
+npm run dev -- --host 127.0.0.1 --port 5180
 ```
 
-⚠️ In this mode writes go to your app's **production data** — plain `base44 dev` keeps everything local.
+Configure direct GitHub and Supabase management access in **Admin → Platform operations → Connections**. Saving a connection verifies provider access; it does not copy data, change the app database, or deploy the app. Google sign-in requires the Google provider and callback URLs configured in Supabase Auth.
 
-## Publish Your Changes
+## Validation
 
-After pushing your changes to git, open the Base44 dashboard and publish the app:
-
-```bash
-base44 dashboard open
+```sh
+npm test
+npx tsc --noEmit
+npm run build
 ```
 
-This repo syncs to Base44 through git, so publish from the dashboard rather than `base44 deploy` — a CLI deploy ships your local tree directly, bypassing the sync, and the deployed state silently diverges from the repo.
+## Data and preview safety
 
-## Docs & Support
+- Keep existing database IDs, Auth identities, course layouts and event snapshots intact during migration. Local SQL migrations are not a data backup. Do not run `drizzle-kit push`; the current Drizzle schema is empty.
+- An isolated app preview uses `.env.sandbox.example` and `npm run sandbox`. It requires a separate Supabase project; a code preview alone does not isolate database writes.
+- Local secrets, connection vaults and migration backups are ignored by Git. Hosted connection settings require persistent private storage and an encryption key configured by the host.
+- The project originated in Lovable. Some AI, Calendar, messaging and build dependencies still use Lovable and need separate replacement; see the migration guide for the remaining work.
 
-GitHub integration: [https://docs.base44.com/developers/app-code/local-development/github](https://docs.base44.com/developers/app-code/local-development/github)
+## Built with
 
-Local development: [https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+- TanStack Start
+- TypeScript
+- React
+- Tailwind CSS

@@ -1,0 +1,2 @@
+ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS event_type text NOT NULL DEFAULT 'tournament' CHECK (event_type IN ('tournament','league'));
+ALTER TABLE public.leagues ADD COLUMN IF NOT EXISTS event_type text NOT NULL DEFAULT 'league' CHECK (event_type IN ('tournament','league'));

@@ -1,0 +1,1 @@
+- PDGA source intelligence (Phase 5C) lives in src/lib/pdga-intel/* (versioned semantic parsers, polite fetcher, multi-stage resolver) and stores admin-only provenance in pdga_src_* tables via the service-role-only pdga_src_apply function, which supersedes changed observations instead of overwriting — keeps PDGA history auditable and never feeds DGD model math.

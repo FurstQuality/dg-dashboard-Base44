@@ -1,0 +1,1 @@
+ALTER TYPE public.schedule_event_source ADD VALUE IF NOT EXISTS 'udisc';

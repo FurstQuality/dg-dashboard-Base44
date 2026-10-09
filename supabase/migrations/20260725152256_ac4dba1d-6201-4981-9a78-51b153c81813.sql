@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN IF NOT EXISTS agenda jsonb NOT NULL DEFAULT '[]'::jsonb;

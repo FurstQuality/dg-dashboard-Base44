@@ -1,0 +1,1 @@
+- Course Atlas updates are one durable course_atlas_runs row advanced only by src/lib/course-atlas/orchestrator.server.ts (leased pass, called by the existing 5-minute timer and once by the button) — closing the browser never stops a run and no second timer exists.

@@ -1,0 +1,2 @@
+ALTER PUBLICATION supabase_realtime ADD TABLE public.tournament_scores;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.tournament_registrations;

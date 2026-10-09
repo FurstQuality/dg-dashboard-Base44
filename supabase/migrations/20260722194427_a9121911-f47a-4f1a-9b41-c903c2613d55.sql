@@ -1,0 +1,1 @@
+ALTER TABLE public.avatar_configs ADD COLUMN IF NOT EXISTS ai_prompt jsonb;
