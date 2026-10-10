@@ -44,6 +44,6 @@ export default defineConfig(({ command }) => ({
     tailwindcss(),
   ],
   server: {
-    fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/.admin-connections.local/**", "**/.migration-data.local/**", "**/.migration-check.local/**", "**/.sandbox/**", "**/.dgd-import/**", "**/.dgd-template.local/**"] },
+    fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/.admin-connections.local/**", "**/.migration-data.local/**", "**/.migration-check.local/**", "**/.sandbox/**", "**/.base44-workspace.local/**", "**/.dgd-sync.local/**", "**/.dgd-import/**", "**/.dgd-template.local/**"] },
   },
 }));

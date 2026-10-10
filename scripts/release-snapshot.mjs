@@ -19,7 +19,7 @@ export async function sourceFingerprint(root) {
       else if (entry.isFile()) files.push(path);
     }
   }
-  for (const directory of ["src", "public", "scripts", "deployment", "supabase/migrations", ".github/workflows"])
+  for (const directory of ["src", "public", "scripts", "deployment", "supabase/migrations", "drizzle/migrations", ".github/workflows"])
     await walk(directory);
   for (const file of [
     "package.json",

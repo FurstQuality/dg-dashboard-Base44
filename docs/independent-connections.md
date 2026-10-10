@@ -1,5 +1,23 @@
 # Independent GitHub and Supabase connections
 
+## Current connection audit — October 10, 2026
+
+This section supersedes the older connection and missing-backup findings below. Provider connections, source-code synchronization and database migration are separate checks.
+
+| Service | Verified state | Remaining work |
+| --- | --- | --- |
+| Base44 | DG Dashboard app `6ac96e8c9295eff8becd8869` belongs to Mike’s Workspace `69f19bca9bb88d5af75fba89`. PR #1 finished synchronizing at 23:04:31 UTC on October 10. Base44 reported ready at GitHub main commit `68161ce837f4d34f97258509df0b0b741ac05ef6`. | Verify the rendered cloud preview. Direct sandbox file access still timed out after the successful GitHub synchronization. |
+| GitHub | Updated token access now works for `dg-dashboard-Base44`. The connected repository was cloned and the tested one-file startup repair was pushed and merged through PR #1, producing main commit `68161ce837f4d34f97258509df0b0b741ac05ef6`. The 2,311-file migration branch in `Disc-Golf-Dashboard` remains preserved at `90af4fa35c900e7a7a6531cd8f0b60322da6bc77`. | The separate Codex GitHub connector remains authenticated as `furst93`; the verified saved token provides repository access independently. Reconcile the remaining updates before transferring them. |
+| Lovable | DG Dashboard project `51ec5e38-895e-487c-9ba7-99b8352b4eb5` is accessible, its agent is finished, and its source commit is `cd0067688df1bd7e1b34454182fb7b764906cbd7`. Its Supabase configuration names source project `ypeebzwggcsyfvafpifa`; read-only database queries work through the Lovable connector. | Preserve the original project and compare current data with the October 9 archive before cutover. Remaining legacy runtime integrations still need replacement and verification. |
+| Supabase destination | `aosklgewcakrhuxdynik` is active and healthy. Saved management access and the public Auth endpoint work; Google OAuth is enabled with credentials present. The destination has no application tables, Auth users, Storage buckets/objects or Edge Functions. | Restore and verify data and Storage, configure exact Auth return URLs, and verify private runtime bindings. The private PostgreSQL connection currently contains a password placeholder. |
+| Codex/local app | Existing source and backups remain intact. Ordinary local development still targets the source Supabase project; the Base44 public build configuration targets the empty destination. The startup repair passed TypeScript, the production Worker build and all 16 HTTP/access checks using the connected repository’s exact lockfile. | Verify the actual cloud preview, hydration, sign-in and provider workflows. Other local updates remain pending. Local checks do not establish cloud readiness. |
+
+The live Lovable database reports 296 public base tables, 12,563 courses, seven Auth users, 11 Storage buckets and 147 Storage objects. The immutable October 9 archive records 12,570 courses and 146 Storage objects. These are aggregate differences, not an identified list of changed records. Retain the archive and compare a fresh export before restore/cutover; do not silently overwrite later changes with the older snapshot.
+
+GitHub repository authorization is now complete for the saved token; another token is not required. Keep it scoped to the two repositories while reconciling the migration. Save any future replacement privately in Admin → Connections. Changing the saved repository target without supplying a replacement clears the saved token. See [GitHub’s token guidance](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and [the Base44 collaboration workflow](base44-codex-workflow.md).
+
+The startup repair was pushed and merged through [PR #1](https://github.com/FurstQuality/dg-dashboard-Base44/pull/1). No publication or data migration was performed. Public payments and sensitive-data workflows are not verified as release-ready.
+
 ## Configure connections in DG Dashboard
 
 Open **Admin → Platform operations → Connections** (`/admin/operations?section=connections`).
@@ -128,7 +146,7 @@ This update supersedes the earlier missing-backup, unconfigured-Google and gener
 
 1. Open [the destination's Database settings](https://supabase.com/dashboard/project/aosklgewcakrhuxdynik/database/settings). Use the database password saved when this project was created. If unavailable, select **Reset database password**, save the new password in your password manager, and allow the reset to finish. This is not a Supabase API key or personal access token.
 2. In that same project, open **Connect → Session pooler** and copy its connection string. Replace `[YOUR-PASSWORD]` with the database password, percent-encoding reserved characters as documented by Supabase. Keep the copied host and `postgres.aosklgewcakrhuxdynik` username; do not guess the pooler host.
-3. In the already-created private file `.migration-data.local/destination-db.env`, set `MIGRATION_DATABASE_URL=` followed by that complete string. Keep it out of chat and Git. No database connection string is configured in this file yet.
+3. In the already-created private file `.migration-data.local/destination-db.env`, set `MIGRATION_DATABASE_URL=` followed by that complete string. Replace the password placeholder privately with the actual database password. Keep it out of chat and Git. The October 10 preflight found the destination URL but its password placeholder was still present.
 4. The migration can then verify the destination over PostgreSQL, preserve its current state, compare managed schemas, and restore a reviewed selection of application/Auth data and custom policies. Do not restore the entire archive indiscriminately over managed Supabase schemas or enable its original cron jobs.
 
 See [Supabase connection strings](https://supabase.com/docs/guides/database/connecting-to-postgres) and [backup/restore guidance](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore).

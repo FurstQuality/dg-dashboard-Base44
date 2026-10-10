@@ -1,0 +1,3 @@
+ALTER TABLE public.event_series ADD COLUMN IF NOT EXISTS division_change text NOT NULL DEFAULT 'separate';
+ALTER TABLE public.event_series ADD CONSTRAINT event_series_division_change_check CHECK (division_change IN ('separate','carry'));
+COMMENT ON COLUMN public.event_series.division_change IS 'separate = points stay in the division earned; carry = points follow the player to their latest division';
