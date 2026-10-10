@@ -32,21 +32,14 @@ export default defineConfig(({ command }) => ({
   },
   environments: {
     ssr: { build: { rollupOptions: { external: ["cloudflare:workers"] } } },
-    ...(command === "serve" ? {
-      nitro: {
-        resolve: {
-          external: ["h3", "srvx", "crossws", "hookable", "ofetch", "ohash", "unstorage", "db0", "ocache", "consola"],
-        },
-      },
-    } : {}),
   },
   plugins: [
     previewRuntimePlugin(),
     base44({ hmrNotifier: true, navigationNotifier: true, visualEditAgent: true }),
     tanstackStart({ server: { entry: "server.base44" } }),
-    nitro(command === "serve"
-      ? { preset: "nitro-dev", devServer: { runner: "node-worker" } }
-      : { preset: "cloudflare-module" }),
+    // TanStack serves preview requests; Nitro packages the published Worker.
+    // A second Nitro dev runner stalls startup in the managed sandbox.
+    ...(command === "build" ? [nitro({ preset: "cloudflare-module" })] : []),
     react(),
     tailwindcss(),
   ],
