@@ -7,13 +7,14 @@ import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
 import { assertBrowserSupabaseKey } from "./src/lib/public-supabase-key";
 import publicConfig from "./deployment/base44/public-config.json";
+import previewRuntimePlugin from "./src/lib/preview-runtime-plugin";
 
 assertBrowserSupabaseKey(publicConfig.publishableKey);
 if (publicConfig.url !== "https://aosklgewcakrhuxdynik.supabase.co") {
   throw new Error("The Base44 build must use DG Dashboard's dedicated Supabase project.");
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   // Importing this app never reads the original development database or vault.
   envDir: false,
   cacheDir: "node_modules/.vite-base44",
@@ -31,15 +32,25 @@ export default defineConfig({
   },
   environments: {
     ssr: { build: { rollupOptions: { external: ["cloudflare:workers"] } } },
+    ...(command === "serve" ? {
+      nitro: {
+        resolve: {
+          external: ["h3", "srvx", "crossws", "hookable", "ofetch", "ohash", "unstorage", "db0", "ocache", "consola"],
+        },
+      },
+    } : {}),
   },
   plugins: [
+    previewRuntimePlugin(),
     base44({ hmrNotifier: true, navigationNotifier: true, visualEditAgent: true }),
     tanstackStart({ server: { entry: "server.base44" } }),
-    nitro({ preset: "cloudflare-module" }),
+    nitro(command === "serve"
+      ? { preset: "nitro-dev", devServer: { runner: "node-worker" } }
+      : { preset: "cloudflare-module" }),
     react(),
     tailwindcss(),
   ],
   server: {
     fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/.admin-connections.local/**", "**/.migration-data.local/**", "**/.migration-check.local/**", "**/.sandbox/**", "**/.dgd-import/**", "**/.dgd-template.local/**"] },
   },
-});
+}));
