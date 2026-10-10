@@ -1,3 +1,5 @@
+import { aceProvider, transactionalEmailProvider } from "./service-providers";
+
 export const OPERATION_SECTIONS = [
   "overview",
   "connections",
@@ -120,19 +122,19 @@ export const CONNECTOR_CATALOG = [
     id: "ai",
     name: "Ace AI",
     category: "AI",
-    mode: "Lovable gateway",
-    keys: ["LOVABLE_API_KEY"],
-    setup: "https://docs.lovable.dev/integrations/ai",
-    description: "Existing caddy and scorecard AI use the Lovable model gateway.",
+    mode: "OpenAI · Direct",
+    keys: ["OPENAI_API_KEY"],
+    setup: "https://platform.openai.com/api-keys",
+    description: "Ace chat and guest scorecard guidance use OpenAI when configured. Existing installations can retain their legacy provider until migration.",
   },
   {
     id: "email",
     name: "Transactional email",
     category: "Messaging",
-    mode: "Lovable gateway",
-    keys: ["LOVABLE_API_KEY"],
-    setup: "https://docs.lovable.dev/integrations/introduction",
-    description: "Existing email delivery and auth webhook use Lovable's email service.",
+    mode: "Resend · Direct",
+    keys: ["RESEND_API_KEY", "EMAIL_FROM"],
+    setup: "https://resend.com/domains",
+    description: "Event invitations and kiosk signup emails use Resend when configured. Supabase sign-in and password reset emails need separate Auth SMTP settings.",
   },
   {
     id: "push",
@@ -178,6 +180,8 @@ export type OperationsOverview = {
     configured: boolean;
     missing: string[];
     state: "configured" | "missing" | "setup";
+    mode: string;
+    setup: string;
   }[];
   runtime: { name: string; configured: boolean }[];
 };
@@ -195,12 +199,18 @@ export function connectorReadiness(
   env: Record<string, string | undefined>,
 ): OperationsOverview["connectors"] {
   return CONNECTOR_CATALOG.map((c) => {
-    const missing = c.keys.filter((key) => !env[key]?.trim());
+    const provider = c.id === "ai" ? aceProvider(env)
+      : c.id === "email" ? transactionalEmailProvider(env) : null;
+    const keys: readonly string[] = provider
+      ? ("keys" in provider ? provider.keys : [provider.key]) : c.keys;
+    const missing = keys.filter((key) => !env[key]?.trim());
     return {
       id: c.id,
-      configured: c.keys.length > 0 && missing.length === 0,
+      configured: keys.length > 0 && missing.length === 0,
       missing,
-      state: c.keys.length === 0 ? "setup" : missing.length ? "missing" : "configured",
+      state: keys.length === 0 ? "setup" : missing.length ? "missing" : "configured",
+      mode: provider?.mode ?? c.mode,
+      setup: provider?.setup ?? c.setup,
     };
   });
 }

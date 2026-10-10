@@ -9,7 +9,7 @@ const steps = [
   ["Unit and database security tests", ["node_modules/vitest/vitest.mjs", "run"]],
   [
     "Sandbox isolation tests",
-    ["--test", "scripts/sandbox-env.test.mjs", "scripts/release-snapshot.test.mjs"],
+    ["--test", "scripts/sandbox-env.test.mjs", "scripts/release-snapshot.test.mjs", "scripts/base44-workspace.test.mjs"],
   ],
   ["TypeScript", ["node_modules/typescript/bin/tsc", "--noEmit", "--pretty", "false"]],
   ["Production build", ["node_modules/vite/bin/vite.js", "build"]],

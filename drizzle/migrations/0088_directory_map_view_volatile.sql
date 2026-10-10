@@ -1,0 +1,1 @@
+ALTER FUNCTION public.directory_map_view(double precision,double precision,double precision,double precision,double precision,text,text[],text,numeric,text,text,boolean) VOLATILE;

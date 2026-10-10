@@ -10,6 +10,10 @@
     "dev": "vite --config vite.base44.config.ts",
     "dev:base44": "vite --config vite.base44.config.ts",
     "build:base44": "vite build --config vite.base44.config.ts",
+    "base44:status": "node scripts/base44-workspace.mjs status",
+    "base44:pull": "node scripts/base44-workspace.mjs pull",
+    "base44:push": "node scripts/base44-workspace.mjs push",
+    "test:base44": "node --test scripts/base44-workspace.test.mjs",
     "sandbox": "node scripts/sandbox.mjs",
     "test:sandbox": "node --test scripts/sandbox-env.test.mjs",
     "build": "vite build --config vite.base44.config.ts",
@@ -104,6 +108,7 @@
   },
   "devDependencies": {
     "@base44/vite-plugin": "^1.0.44",
+    "base44": "0.1.25",
     "@electric-sql/pglite": "0.5.8",
     "@eslint/js": "^9.32.0",
     "@types/canvas-confetti": "^1.9.0",
@@ -133,6 +138,10 @@
   },
   "overrides": {
     "esbuild": "0.28.2",
+    "miniflare": {
+      "sharp": "0.35.5",
+      "undici": "7.29.1"
+    },
     "@lovable.dev/mcp-js": {
       "@modelcontextprotocol/sdk": "1.32.1"
     }

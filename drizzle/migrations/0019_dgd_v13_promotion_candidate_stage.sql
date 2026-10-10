@@ -1,0 +1,3 @@
+ALTER TABLE public.rating_model_versions DROP CONSTRAINT rating_model_versions_shadow_stage_check;
+ALTER TABLE public.rating_model_versions ADD CONSTRAINT rating_model_versions_shadow_stage_check CHECK (shadow_stage IS NULL OR shadow_stage IN ('baseline','control','candidate','promotion_candidate','shadow_champion','rejected'));
+UPDATE public.rating_model_versions SET shadow_stage = 'promotion_candidate', notes = coalesce(notes,'') || ' | Phase 5B.3: math frozen; PROMOTION_CANDIDATE (V1.2 stays shadow champion).' WHERE id = 'dgd-core-v1.3@0.3.0';

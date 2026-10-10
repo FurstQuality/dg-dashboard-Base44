@@ -1,0 +1,2 @@
+ALTER TABLE public.course_layouts ADD COLUMN IF NOT EXISTS played_rule_ids uuid[];
+COMMENT ON COLUMN public.course_layouts.played_rule_ids IS 'Which course OB/mando/drop-zone features this layout plays. NULL = its own rules plus course-wide rules.';

@@ -1,0 +1,1 @@
+ALTER TABLE public.round_throws ADD COLUMN lat double precision, ADD COLUMN lng double precision, ADD COLUMN gps_accuracy_m double precision;

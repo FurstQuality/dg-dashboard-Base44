@@ -1,0 +1,2 @@
+ALTER TABLE public.holes ADD COLUMN tee_bearing double precision CHECK (tee_bearing IS NULL OR (tee_bearing >= 0 AND tee_bearing < 360));
+COMMENT ON COLUMN public.holes.tee_bearing IS 'Direction the main tee pad faces in degrees (0 = north); null = aim at the first bend or basket';

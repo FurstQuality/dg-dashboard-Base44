@@ -622,13 +622,8 @@ export async function kioskGuestCheckIn(
   if (args.signupOptIn && args.email) {
     try {
       const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-      const { getRequestUrl } = await import("@tanstack/react-start/server");
-      let signupUrl = "https://dgdashboard.app/auth";
-      try {
-        signupUrl = new URL("/auth", getRequestUrl()).toString();
-      } catch {
-        /* fall back to the published sign-in URL */
-      }
+      const { publicAppOrigin } = await import("./public-app-origin.server");
+      const signupUrl = new URL("/auth", publicAppOrigin()).toString();
       const res = await sendTemplateEmail("kiosk-signup-invite", args.email, {
         templateData: {
           guest_name: args.fullName,
