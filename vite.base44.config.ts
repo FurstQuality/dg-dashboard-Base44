@@ -18,6 +18,11 @@ export default defineConfig(({ command }) => ({
   // Importing this app never reads the original development database or vault.
   envDir: false,
   cacheDir: "node_modules/.vite-base44",
+  // Scan only explicit runtime dependencies, not the imported repository.
+  optimizeDeps: {
+    noDiscovery: true,
+    include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"],
+  },
   resolve: {
     alias: [
       { find: "@/components/platform-scripts", replacement: resolve("deployment/base44/document.tsx") },
