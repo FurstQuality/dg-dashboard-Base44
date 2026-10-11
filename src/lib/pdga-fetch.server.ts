@@ -2,7 +2,7 @@
  * Fetch a public PDGA page. pdga.com often blocks server requests (403),
  * so a blocked or failed direct read falls back to the Firecrawl connector.
  */
-const FIRECRAWL_GATEWAY = "https://connector-gateway.lovable.dev/firecrawl/v2";
+import { firecrawlConnection } from "@/lib/firecrawl-connection.server";
 
 export async function fetchPdgaHtml(url: string): Promise<string> {
   let status = 0;
@@ -20,12 +20,11 @@ export async function fetchPdgaHtml(url: string): Promise<string> {
   } catch (e) {
     if (e instanceof Error && e.message.includes("404")) throw e;
   }
-  const lovable = process.env.LOVABLE_API_KEY;
-  const conn = process.env.FIRECRAWL_API_KEY;
-  if (!lovable || !conn) throw new Error(`PDGA fetch failed (${status}) for ${url}`);
-  const res = await fetch(`${FIRECRAWL_GATEWAY}/scrape`, {
+  const connection = firecrawlConnection();
+  if (!connection) throw new Error(`PDGA fetch failed (${status}) for ${url}. Configure a direct FIRECRAWL_API_KEY on the app server.`);
+  const res = await fetch(`${connection.baseUrl}/scrape`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${lovable}`, "X-Connection-Api-Key": conn, "Content-Type": "application/json" },
+    headers: connection.headers,
     body: JSON.stringify({ url, formats: ["html"], onlyMainContent: false, location: { country: "US", languages: ["en"] } }),
   });
   if (!res.ok) throw new Error(`PDGA is not answering right now (${status || res.status}). Try again in a few minutes.`);

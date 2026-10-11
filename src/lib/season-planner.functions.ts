@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { firecrawlConnection } from "@/lib/firecrawl-connection.server";
 
 /* ----------------------------- PDGA Tour scrape --------------------------- */
 
@@ -18,9 +19,8 @@ function normDate(s: string | null | undefined): string | null {
 }
 
 async function firecrawlScrapeEvents(url: string): Promise<any[]> {
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  const connKey = process.env.FIRECRAWL_API_KEY;
-  if (!lovableKey || !connKey) throw new Error("Firecrawl connector not configured");
+  const connection = firecrawlConnection();
+  if (!connection) throw new Error("Configure a direct FIRECRAWL_API_KEY on the app server.");
 
   const schema = {
     type: "object",
@@ -54,13 +54,9 @@ async function firecrawlScrapeEvents(url: string): Promise<any[]> {
     required: ["events"],
   };
 
-  const res = await fetch("https://connector-gateway.lovable.dev/firecrawl/v2/scrape", {
+  const res = await fetch(`${connection.baseUrl}/scrape`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": connKey,
-    },
+    headers: connection.headers,
     body: JSON.stringify({
       url,
       onlyMainContent: true,
