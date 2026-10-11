@@ -1,4 +1,2 @@
-/** The ordinary app needs no hosting-provider document scripts. */
-export function PlatformScripts() {
-  return null;
-}
+/** Load the editor bridge directly: the router resolves aliases before Vite. */
+export { Base44Scripts as PlatformScripts } from "base44:document";
