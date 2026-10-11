@@ -4,6 +4,7 @@ import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { secureResponse } from "./lib/security-headers";
 import { sandboxRuntimeStatus } from "./lib/sandbox-runtime";
+import { previewPageRedirect } from "@/lib/preview-page-redirect";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -69,7 +70,7 @@ export default {
     if (process.env.DGD_SANDBOX === "1" && !sandboxRuntimeStatus(process.env).isolated) {
       return secureResponse(new Response("Sandbox database isolation is not configured. No app request was executed.", { status: 503 }), request);
     }
-    const redirect = canonicalRedirect(request);
+    const redirect = canonicalRedirect(request) ?? previewPageRedirect(request);
     if (redirect) return secureResponse(redirect, request);
     try {
       const handler = await getServerEntry();

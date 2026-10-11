@@ -26,11 +26,11 @@ type Busy = "google" | "apple" | "microsoft" | "email" | "signup" | "forgot" | n
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { ref?: string; pdga?: string; name?: string; mode?: "signup"; next?: string } => ({
+  ): { ref?: string; pdga?: string; name?: string; mode?: "signup" | "forgot"; next?: string } => ({
     ref: typeof search.ref === "string" ? search.ref : undefined,
     pdga: typeof search.pdga === "string" ? search.pdga : undefined,
     name: typeof search.name === "string" ? search.name : undefined,
-    mode: search.mode === "signup" ? ("signup" as const) : undefined,
+    mode: search.mode === "signup" || search.mode === "forgot" ? search.mode : undefined,
     // Same-origin relative path only: used by flows that must return the
     // player to where they started (e.g. an app-connection consent screen).
     next:
@@ -90,7 +90,7 @@ function AuthPage() {
     search.next ?? (sharedInvite ? `/preview/${encodeURIComponent(sharedInvite.pdga)}` : "/play");
 
   const [screen, setScreen] = useState<Screen>(
-    sharedInvite || search.mode === "signup" ? "signup" : "signin",
+    search.mode === "forgot" ? "forgot" : sharedInvite || search.mode === "signup" ? "signup" : "signin",
   );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
