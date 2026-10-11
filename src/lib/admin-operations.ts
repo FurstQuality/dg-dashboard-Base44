@@ -1,4 +1,4 @@
-import { aceProvider, transactionalEmailProvider } from "./service-providers";
+import { aceProvider, transactionalEmailProvider, firecrawlProvider, smsProvider, calendarProvider } from "./service-providers";
 
 export const OPERATION_SECTIONS = [
   "overview",
@@ -80,24 +80,23 @@ export const CONNECTOR_CATALOG = [
     id: "calendar",
     name: "Google Calendar",
     category: "Connectors",
-    mode: "Lovable gateway",
+    mode: "Google Calendar · Direct",
     keys: [
-      "LOVABLE_API_KEY",
-      "GOOGLE_CALENDAR_APP_USER_CONNECTOR_CLIENT_API_KEY",
+      "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REDIRECT_URI",
       "APP_USER_CONNECTION_KEY_SECRET",
     ],
-    setup: "https://docs.lovable.dev/integrations/introduction",
+    setup: "https://console.cloud.google.com/apis/credentials",
     description:
-      "Existing per-user calendar connector. Direct Google Calendar OAuth is still required to remove this gateway dependency.",
+      "Per-user Google Calendar OAuth with encrypted credentials. Register the app callback URL separately from Google sign-in.",
   },
   {
     id: "firecrawl",
     name: "Firecrawl",
     category: "Connectors",
-    mode: "Lovable gateway",
-    keys: ["LOVABLE_API_KEY", "FIRECRAWL_API_KEY"],
+    mode: "Firecrawl · Direct",
+    keys: ["FIRECRAWL_API_KEY"],
     setup: "https://www.firecrawl.dev/app",
-    description: "Course and event source imports currently use Lovable connection keys.",
+    description: "Course, event and source imports use your Firecrawl API key. Existing gateway installations retain their selected provider.",
   },
   {
     id: "search-console",
@@ -149,16 +148,15 @@ export const CONNECTOR_CATALOG = [
     id: "sms",
     name: "Twilio",
     category: "Messaging",
-    mode: "Lovable gateway",
+    mode: "Twilio · Direct",
     keys: [
-      "LOVABLE_API_KEY",
       "TWILIO_ACCOUNT_SID",
       "TWILIO_API_KEY",
       "TWILIO_API_SECRET",
       "TWILIO_FROM_NUMBER",
     ],
     setup: "https://console.twilio.com",
-    description: "SMS delivery currently goes through the connector gateway.",
+    description: "SMS uses your Twilio account and API credentials, with a sender number or Messaging Service.",
   },
   {
     id: "github",
@@ -200,10 +198,14 @@ export function connectorReadiness(
 ): OperationsOverview["connectors"] {
   return CONNECTOR_CATALOG.map((c) => {
     const provider = c.id === "ai" ? aceProvider(env)
-      : c.id === "email" ? transactionalEmailProvider(env) : null;
+      : c.id === "email" ? transactionalEmailProvider(env)
+      : c.id === "firecrawl" ? firecrawlProvider(env)
+      : c.id === "sms" ? smsProvider(env)
+      : c.id === "calendar" ? calendarProvider(env) : null;
     const keys: readonly string[] = provider
       ? ("keys" in provider ? provider.keys : [provider.key]) : c.keys;
     const missing = keys.filter((key) => !env[key]?.trim());
+    if (c.id === "sms" && !env.TWILIO_FROM_NUMBER?.trim() && !env.TWILIO_MESSAGING_SERVICE_SID?.trim()) missing.push("TWILIO_FROM_NUMBER or TWILIO_MESSAGING_SERVICE_SID");
     return {
       id: c.id,
       configured: keys.length > 0 && missing.length === 0,

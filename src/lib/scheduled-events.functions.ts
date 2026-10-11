@@ -1,3 +1,4 @@
+import { firecrawlRequest, isFirecrawlConfigured, archiveSourceHtml } from "./firecrawl.server";
 /**
  * Scheduled events — unified "what am I signed up for" tracker.
  *
@@ -218,57 +219,16 @@ export const deleteScheduledEvent = createServerFn({ method: "POST" })
 async function fetchHtml(rawUrl: string): Promise<string> {
   // Re-check every fetch (including stored URLs) against the approved event sites.
   const url = assertEventSourceUrl(rawUrl);
-  // Try Firecrawl first when connected (better JS-rendered support), then plain fetch.
-  const firecrawlKey = process.env.FIRECRAWL_API_KEY;
-  const lovableKey = process.env.LOVABLE_API_KEY;
-
-  if (firecrawlKey && lovableKey && firecrawlKey.startsWith("lovc_")) {
+  if (isFirecrawlConfigured()) {
     try {
-      const res = await fetch("https://connector-gateway.lovable.dev/firecrawl/v2/scrape", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${lovableKey}`,
-          "X-Connection-Api-Key": firecrawlKey,
-        },
-        body: JSON.stringify({ url, formats: ["rawHtml", "html"], onlyMainContent: false }),
-      });
+      const res = await firecrawlRequest("/scrape", { url, formats: ["rawHtml", "html"], onlyMainContent: false });
       if (res.ok) {
-        const body = (await res.json()) as {
-          data?: { rawHtml?: string; html?: string };
-          rawHtml?: string;
-          html?: string;
-        };
-        const html = body.rawHtml ?? body.html ?? body.data?.rawHtml ?? body.data?.html ?? null;
-        if (html) return html;
+        const payload = await res.json();
+        const html = payload.data?.rawHtml ?? payload.data?.html ?? payload.rawHtml ?? payload.html;
+        if (typeof html === "string" && html) return html;
       }
-    } catch {
-      // fall through to plain fetch
-    }
-  } else if (firecrawlKey && firecrawlKey.startsWith("fc-")) {
-    try {
-      const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${firecrawlKey}`,
-        },
-        body: JSON.stringify({ url, formats: ["rawHtml", "html"], onlyMainContent: false }),
-      });
-      if (res.ok) {
-        const body = (await res.json()) as {
-          data?: { rawHtml?: string; html?: string };
-          rawHtml?: string;
-          html?: string;
-        };
-        const html = body.rawHtml ?? body.html ?? body.data?.rawHtml ?? body.data?.html ?? null;
-        if (html) return html;
-      }
-    } catch {
-      /* fall through */
-    }
+    } catch { /* A supported public source can still be read directly. */ }
   }
-
   // Plain fetch fallback — Disc Golf Scene event pages are server-rendered.
   const res = await fetch(url, {
     headers: {
@@ -278,7 +238,7 @@ async function fetchHtml(rawUrl: string): Promise<string> {
     redirect: "manual",
   });
   if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
-  return await res.text();
+  return archiveSourceHtml(url, await res.text());
 }
 
 export const parseEventUrl = createServerFn({ method: "POST" })
@@ -311,45 +271,18 @@ export const searchSceneEvents = createServerFn({ method: "POST" })
       .parse(raw),
   )
   .handler(async ({ data }) => {
-    const firecrawlKey = process.env.FIRECRAWL_API_KEY;
-    const lovableKey = process.env.LOVABLE_API_KEY;
-    if (!firecrawlKey) {
-      return {
-        results: [] as Array<{ url: string; title: string; description: string }>,
-        needsConnector: true,
-      };
-    }
-
-    const isGateway = firecrawlKey.startsWith("lovc_");
-    const url = isGateway
-      ? "https://connector-gateway.lovable.dev/firecrawl/v2/search"
-      : "https://api.firecrawl.dev/v2/search";
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (isGateway) {
-      if (!lovableKey) return { results: [], needsConnector: true };
-      headers.Authorization = `Bearer ${lovableKey}`;
-      headers["X-Connection-Api-Key"] = firecrawlKey;
-    } else {
-      headers.Authorization = `Bearer ${firecrawlKey}`;
-    }
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        query: `${data.query} site:discgolfscene.com/tournaments`,
-        limit: data.limit,
-      }),
+    if (!isFirecrawlConfigured()) return { results: [], needsConnector: true };
+    const res = await firecrawlRequest("/search", {
+      query: `${data.query} site:discgolfscene.com/tournaments`, limit: data.limit,
     });
     if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Search failed [${res.status}]: ${errText.slice(0, 200)}`);
+      throw new Error(`Event search failed (${res.status}). Please try again.`);
     }
     const body = (await res.json()) as {
-      data?: Array<{ url: string; title?: string; description?: string }>;
+      data?: Array<{ url: string; title?: string; description?: string }> | { web?: Array<{ url: string; title?: string; description?: string }> };
       results?: Array<{ url: string; title?: string; description?: string }>;
     };
-    const raw = body.data ?? body.results ?? [];
+    const raw = Array.isArray(body.data) ? body.data : body.data?.web ?? body.results ?? [];
     const results = raw
       .filter((r) => /discgolfscene\.com\/tournaments\/[^/?#]+/i.test(r.url))
       .map((r) => ({

@@ -50,10 +50,12 @@ export function secureResponse(response: Response, request: Request): Response {
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/auth") ||
     url.pathname.startsWith("/admin") ||
-    url.pathname === "/billing"
+    url.pathname === "/billing" ||
+    url.pathname === "/google-calendar-callback"
   ) {
     headers.set("Cache-Control", "private, no-store");
   }
+  if (url.pathname === "/google-calendar-callback") headers.set("Referrer-Policy", "no-referrer");
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,

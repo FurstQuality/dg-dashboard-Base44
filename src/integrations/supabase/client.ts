@@ -57,6 +57,9 @@ function createSupabaseClient() {
       storage: brokeredPreviewStorage(),
       persistSession: true,
       autoRefreshToken: true,
+      // Calendar codes belong to Google and must never be exchanged as a
+      // Supabase sign-in code or removed before the popup relays them.
+      detectSessionInUrl: typeof window === "undefined" || window.location.pathname !== "/google-calendar-callback",
     },
   });
 }

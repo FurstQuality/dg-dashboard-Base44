@@ -9,6 +9,21 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { getRequest } from "@tanstack/react-start/server";
+import { calendarProvider } from "./service-providers";
+
+async function calendarRequest(userId: string, key: string, path: string, init?: RequestInit) {
+  if (calendarProvider(process.env).id === "google") {
+    const { directCalendarRequest } = await import("./google-calendar.server");
+    return directCalendarRequest(userId, path, init);
+  }
+  const { callAsAppUser } = await import("@/integrations/lovable/appUserConnector");
+  return callAsAppUser({ gatewayBaseUrl: GATEWAY_BASE_URL, connectionAPIKey: key, connectorId: GOOGLE_CONNECTOR, path, init });
+}
+
+function calendarConnectionId() {
+  return calendarProvider(process.env).id === "google" ? "google_calendar_direct" : GOOGLE_CONNECTOR;
+}
 
 const GATEWAY_BASE_URL = "https://connector-gateway.lovable.dev";
 const GOOGLE_CONNECTOR = "google_calendar";
@@ -27,6 +42,11 @@ export const startGoogleCalendarConnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((targetOrigin: string) => z.string().url().max(500).parse(targetOrigin))
   .handler(async ({ data: targetOrigin, context }) => {
+    if (getRequest().headers.get("origin") !== targetOrigin) throw new Error("Calendar connection must start from this app.");
+    if (calendarProvider(process.env).id === "google") {
+      const { startDirectCalendar } = await import("./google-calendar.server");
+      return startDirectCalendar(context.userId, targetOrigin);
+    }
     const clientKey = process.env.GOOGLE_CALENDAR_APP_USER_CONNECTOR_CLIENT_API_KEY;
     if (!clientKey) {
       throw new Error("Google Calendar connector is not configured.");
@@ -42,13 +62,22 @@ export const startGoogleCalendarConnect = createServerFn({ method: "POST" })
       webMessageTargetOrigin: targetOrigin,
       credentialsConfiguration: { scopes: GOOGLE_SCOPES },
     });
-    return { authorizationUrl };
+    return { authorizationUrl, provider: "lovable" as const, state: null };
+  });
+
+export const completeGoogleCalendarConnect = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((raw) => z.object({ code: z.string().min(1).max(4000), state: z.string().min(32).max(100) }).parse(raw))
+  .handler(async ({ data, context }) => {
+    const { completeDirectCalendar } = await import("./google-calendar.server");
+    return completeDirectCalendar(context.userId, data.code, data.state, getRequest().headers.get("origin") ?? "");
   });
 
 export const saveGoogleCalendarConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ connectionAPIKey: z.string().min(1).max(500) }).parse(raw))
   .handler(async ({ data, context }) => {
+    if (calendarProvider(process.env).id === "google") throw new Error("Complete Google authorization to connect this calendar.");
     const { saveConnectionKeyForUser } = await import("@/lib/app-user-connections.server");
     await saveConnectionKeyForUser(context.userId, GOOGLE_CONNECTOR, data.connectionAPIKey);
     return { ok: true };
@@ -57,6 +86,11 @@ export const saveGoogleCalendarConnection = createServerFn({ method: "POST" })
 export const disconnectGoogleCalendar = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    if (calendarProvider(process.env).id === "google") {
+      const { disconnectDirectCalendar } = await import("./google-calendar.server");
+      await disconnectDirectCalendar(context.userId);
+      return { ok: true };
+    }
     const { getConnectionKeyForUser, deleteConnectionKeyForUser } =
       await import("@/lib/app-user-connections.server");
     const key = await getConnectionKeyForUser(context.userId, GOOGLE_CONNECTOR);
@@ -80,8 +114,9 @@ export const getCalendarConnectionStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { getConnectionKeyForUser } = await import("@/lib/app-user-connections.server");
-    const key = await getConnectionKeyForUser(context.userId, GOOGLE_CONNECTOR);
-    return { google: Boolean(key) };
+    const provider = calendarProvider(process.env);
+    const key = await getConnectionKeyForUser(context.userId, calendarConnectionId());
+    return { google: Boolean(key), provider: provider.id };
   });
 
 /* ------------------------------------------------------------------ */
@@ -110,7 +145,7 @@ function eventDateFields(g: GoogleEvent): {
   const startDT = g.start?.dateTime ?? null;
   const endDT = g.end?.dateTime ?? null;
   if (startDate) {
-    return { starts_on: startDate, ends_on: endDate ?? startDate, starts_at: null, all_day: true };
+    return { starts_on: startDate, ends_on: endDate ? new Date(Date.parse(`${endDate}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10) : startDate, starts_at: null, all_day: true };
   }
   if (startDT) {
     return {
@@ -127,10 +162,9 @@ export const syncGoogleCalendarPull = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { getConnectionKeyForUser } = await import("@/lib/app-user-connections.server");
-    const key = await getConnectionKeyForUser(context.userId, GOOGLE_CONNECTOR);
+    const key = await getConnectionKeyForUser(context.userId, calendarConnectionId());
     if (!key) throw new Error("Connect Google Calendar first.");
 
-    const { callAsAppUser } = await import("@/integrations/lovable/appUserConnector");
     const timeMin = new Date(Date.now() - 30 * 86_400_000).toISOString();
     const timeMax = new Date(Date.now() + 365 * 86_400_000).toISOString();
     const params = new URLSearchParams({
@@ -140,22 +174,23 @@ export const syncGoogleCalendarPull = createServerFn({ method: "POST" })
       orderBy: "startTime",
       maxResults: "250",
     });
-    const res = await callAsAppUser({
-      gatewayBaseUrl: GATEWAY_BASE_URL,
-      connectionAPIKey: key,
-      connectorId: GOOGLE_CONNECTOR,
-      path: `/calendar/v3/calendars/primary/events?${params.toString()}`,
-    });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Google Calendar pull failed [${res.status}]: ${text.slice(0, 200)}`);
+    const { recordSnapshot, recordObservation } = await import("./data-intel/snapshots.server");
+    const items: Array<{ event: GoogleEvent; snapshotId: string }> = [];
+    for (let page = 0; page < 20; page++) {
+      const res = await calendarRequest(context.userId, key, `/calendar/v3/calendars/primary/events?${params}`);
+      if (!res.ok) throw new Error(`Google Calendar sync failed (${res.status}). Please reconnect or try again.`);
+      const body = (await res.json()) as { items?: GoogleEvent[]; nextPageToken?: string };
+      const snapshotId = await recordSnapshot({ source: "google_calendar", entityType: "calendar", externalId: context.userId, payload: body, parserVersion: "google-calendar-v1" });
+      if (!snapshotId) throw new Error("Calendar source could not be archived. Please try again.");
+      items.push(...(body.items ?? []).filter(e => e.status !== "cancelled").map(event => ({ event, snapshotId })));
+      if (!body.nextPageToken) break;
+      if (page === 19) throw new Error("Calendar has too many events to sync in one pass.");
+      params.set("pageToken", body.nextPageToken);
     }
-    const body = (await res.json()) as { items?: GoogleEvent[] };
-    const items = (body.items ?? []).filter((e) => e.status !== "cancelled");
 
     const { supabase, userId } = context;
     let imported = 0;
-    for (const g of items) {
+    for (const { event: g, snapshotId } of items) {
       const d = eventDateFields(g);
       if (!d.starts_on) continue;
       const row = {
@@ -173,19 +208,22 @@ export const syncGoogleCalendarPull = createServerFn({ method: "POST" })
         notes: g.description ? g.description.slice(0, 2000) : null,
         last_synced_at: new Date().toISOString(),
       };
-      const { data: existing } = await supabase
+      const { data: existing, error: lookupError } = await supabase
         .from("scheduled_events")
-        .select("id")
+        .select("id, status")
         .eq("user_id", userId)
         .eq("google_event_id", g.id)
         .maybeSingle();
-      if (existing) {
-        await supabase
+      if (lookupError) throw new Error("Could not read the scheduled event. Please try again.");
+      const result = existing
+        ? await supabase
           .from("scheduled_events")
-          .update(row as never)
-          .eq("id", (existing as { id: string }).id);
-      } else {
-        await supabase.from("scheduled_events").insert(row as never);
+          .update({ ...row, status: existing.status } as never)
+          .eq("id", existing.id).eq("user_id", userId).select("id").single()
+        : await supabase.from("scheduled_events").insert(row as never).select("id").single();
+      if (result.error || !result.data) throw new Error("Could not save the scheduled event. Please try again.");
+      for (const field of ["title", "event_url", "location", "starts_on", "ends_on", "starts_at", "all_day", "notes"] as const) {
+        await recordObservation({ entityType: "scheduled_event", entityId: result.data.id, field, source: "google_calendar", value: row[field], snapshotId, parserVersion: "google-calendar-v1" });
       }
       imported++;
     }
@@ -197,7 +235,7 @@ export const pushEventToGoogle = createServerFn({ method: "POST" })
   .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { getConnectionKeyForUser } = await import("@/lib/app-user-connections.server");
-    const key = await getConnectionKeyForUser(context.userId, GOOGLE_CONNECTOR);
+    const key = await getConnectionKeyForUser(context.userId, calendarConnectionId());
     if (!key) throw new Error("Connect Google Calendar first.");
     const { supabase, userId } = context;
 
@@ -237,38 +275,50 @@ export const pushEventToGoogle = createServerFn({ method: "POST" })
       body.end = { date: endDate.toISOString().slice(0, 10) };
     } else {
       body.start = { dateTime: ev.starts_at };
-      body.end = { dateTime: ev.starts_at }; // caller can improve later
+      body.end = { dateTime: new Date(Date.parse(ev.starts_at) + 60 * 60_000).toISOString() };
     }
 
-    const { callAsAppUser } = await import("@/integrations/lovable/appUserConnector");
     const method = ev.google_event_id ? "PATCH" : "POST";
+    const exportId = `dgd${ev.id.replaceAll("-", "")}`;
+    if (!ev.google_event_id) {
+      body.id = exportId;
+      body.extendedProperties = { private: { dgd_event_id: ev.id, dgd_user_id: userId } };
+    }
     const path = ev.google_event_id
       ? `/calendar/v3/calendars/primary/events/${encodeURIComponent(ev.google_event_id)}`
       : `/calendar/v3/calendars/primary/events`;
-    const res = await callAsAppUser({
-      gatewayBaseUrl: GATEWAY_BASE_URL,
-      connectionAPIKey: key,
-      connectorId: GOOGLE_CONNECTOR,
-      path,
-      init: {
+    let res = await calendarRequest(context.userId, key, path, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      },
-    });
+      });
+    // An earlier insertion may have succeeded before its response or local
+    // receipt was saved. Recover only the same caller's same scheduled event.
+    if (res.status === 409 && !ev.google_event_id) {
+      const retryPath = `/calendar/v3/calendars/primary/events/${exportId}`;
+      const existing = await calendarRequest(userId, key, retryPath);
+      if (!existing.ok) throw new Error("Could not verify the earlier calendar export. Please try again.");
+      const receipt = await existing.json();
+      const { recordSnapshot } = await import("./data-intel/snapshots.server");
+      if (!await recordSnapshot({ source: "google_calendar", entityType: "calendar_event", externalId: `${userId}/${exportId}`, payload: receipt, parserVersion: "google-calendar-v1" })) throw new Error("Could not archive the calendar export receipt.");
+      if (receipt.extendedProperties?.private?.dgd_event_id !== ev.id || receipt.extendedProperties?.private?.dgd_user_id !== userId) throw new Error("The calendar event ID belongs to a different export.");
+      delete body.id; // Event IDs are assigned on insertion, never changed by PATCH.
+      res = await calendarRequest(userId, key, retryPath, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    }
     if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Google Calendar push failed [${res.status}]: ${text.slice(0, 200)}`);
+      throw new Error(`Google Calendar sync failed (${res.status}). Please reconnect or try again.`);
     }
     const responseBody = (await res.json()) as { id?: string };
-    if (responseBody.id && !ev.google_event_id) {
-      await supabase
+    if (typeof responseBody.id !== "string" || !responseBody.id) throw new Error("Google returned no event receipt. Please try again.");
+    if (!ev.google_event_id) {
+      const { error: saveError, data: saved } = await supabase
         .from("scheduled_events")
         .update({
           google_event_id: responseBody.id,
           last_synced_at: new Date().toISOString(),
         } as never)
-        .eq("id", ev.id);
+        .eq("id", ev.id).eq("user_id", userId).select("id").single();
+      if (saveError || !saved) throw new Error("The calendar event was created but its receipt could not be saved. Retry to reconnect the same event.");
     }
     return { ok: true, google_event_id: responseBody.id ?? ev.google_event_id };
   });
@@ -277,7 +327,7 @@ export const pushAllRegisteredToGoogle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { getConnectionKeyForUser } = await import("@/lib/app-user-connections.server");
-    const key = await getConnectionKeyForUser(context.userId, GOOGLE_CONNECTOR);
+    const key = await getConnectionKeyForUser(context.userId, calendarConnectionId());
     if (!key) throw new Error("Connect Google Calendar first.");
     const { supabase, userId } = context;
     const { data } = await supabase

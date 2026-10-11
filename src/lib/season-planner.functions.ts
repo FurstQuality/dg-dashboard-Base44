@@ -1,3 +1,4 @@
+import { firecrawlRequest, isFirecrawlConfigured } from "@/lib/firecrawl.server";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
@@ -18,9 +19,7 @@ function normDate(s: string | null | undefined): string | null {
 }
 
 async function firecrawlScrapeEvents(url: string): Promise<any[]> {
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  const connKey = process.env.FIRECRAWL_API_KEY;
-  if (!lovableKey || !connKey) throw new Error("Firecrawl connector not configured");
+  if (!isFirecrawlConfigured()) throw new Error("Firecrawl connector not configured");
 
   const schema = {
     type: "object",
@@ -54,14 +53,7 @@ async function firecrawlScrapeEvents(url: string): Promise<any[]> {
     required: ["events"],
   };
 
-  const res = await fetch("https://connector-gateway.lovable.dev/firecrawl/v2/scrape", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": connKey,
-    },
-    body: JSON.stringify({
+  const res = await firecrawlRequest("/scrape", {
       url,
       onlyMainContent: true,
       waitFor: 1500,
@@ -73,11 +65,9 @@ async function firecrawlScrapeEvents(url: string): Promise<any[]> {
             "Extract every disc golf tournament / event listed on the page. Return one entry per event with dates, tier, city/state/country, and any registration link.",
         },
       ],
-    }),
-  });
+    });
   if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Firecrawl ${res.status}: ${body.slice(0, 240)}`);
+    throw new Error(`Event source lookup failed (${res.status}). Please try again.`);
   }
   const json = await res.json();
   const payload = json?.data ?? json;

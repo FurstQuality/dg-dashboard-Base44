@@ -1,3 +1,4 @@
+import { firecrawlRequest, isFirecrawlConfigured, archiveSourceHtml } from "@/lib/firecrawl.server";
 /**
  * Fetch helpers for the background crawler.
  *
@@ -8,7 +9,6 @@
  */
 import { ScrapeDenied } from "./queue.server";
 
-const FIRECRAWL_GATEWAY = "https://connector-gateway.lovable.dev/firecrawl/v2";
 
 /** Minimum gap between outside requests, plus jitter, to stay polite. */
 const MIN_INTERVAL_MS = 3500;
@@ -29,9 +29,7 @@ export type ScrapeResult = { markdown?: string; html?: string; status: number };
 
 /** Scrape one page through Firecrawl. Costs one page against the daily budget. */
 export async function scrapePage(url: string): Promise<ScrapeResult> {
-  const lovable = process.env["LOVABLE_API_KEY"];
-  const conn = process.env["FIRECRAWL_API_KEY"];
-  if (!lovable || !conn) {
+  if (!isFirecrawlConfigured()) {
     throw new ScrapeDenied(403, "Web-page reader is not connected");
   }
 
@@ -39,21 +37,13 @@ export async function scrapePage(url: string): Promise<ScrapeResult> {
   // reader asks for and try again a couple of times before giving up on the page.
   for (let attempt = 0; attempt < 3; attempt += 1) {
     await politeDelay();
-    const res = await fetch(`${FIRECRAWL_GATEWAY}/scrape`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovable}`,
-        "X-Connection-Api-Key": conn,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const res = await firecrawlRequest("/scrape", {
         url,
         formats: ["markdown", "html"],
         onlyMainContent: false,
         waitFor: 500,
         location: { country: "US", languages: ["en"] },
-      }),
-    });
+      });
 
     if (res.status === 402 || res.status === 403 || res.status === 401) {
       throw new ScrapeDenied(res.status, `Page reader refused the request (${res.status})`);
@@ -91,7 +81,7 @@ export async function fetchHtml(url: string): Promise<string | null> {
       },
     });
     if (!res.ok) return null;
-    return await res.text();
+    return await archiveSourceHtml(url, await res.text());
   } catch {
     return null;
   }
