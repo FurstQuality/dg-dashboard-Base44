@@ -37,11 +37,13 @@ export default defineConfig(({ command }) => ({
     previewRuntimePlugin(),
     base44({ hmrNotifier: true, navigationNotifier: true, visualEditAgent: true }),
     tanstackStart({ server: { entry: "server.base44" } }),
+    // TanStack serves preview requests; Nitro packages the published Worker.
+    // A second Nitro dev runner stalls startup in the managed sandbox.
     ...(command === "build" ? [nitro({ preset: "cloudflare-module" })] : []),
     react(),
     tailwindcss(),
   ],
   server: {
-    fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/.admin-connections.local/**", "**/.migration-data.local/**", "**/.migration-check.local/**", "**/.sandbox/**", "**/.dgd-import/**", "**/.dgd-template.local/**"] },
+    fs: { deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "**/.admin-connections.local/**", "**/.migration-data.local/**", "**/.migration-check.local/**", "**/.sandbox/**", "**/.base44-workspace.local/**", "**/.dgd-sync.local/**", "**/.dgd-import/**", "**/.dgd-template.local/**"] },
   },
 }));
