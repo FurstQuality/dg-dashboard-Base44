@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as DgdMethodologyRouteImport } from './routes/dgd-methodology'
+import { Route as GoogleCalendarCallbackRouteImport } from './routes/google-calendar-callback'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -269,6 +270,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 const DgdMethodologyRoute = DgdMethodologyRouteImport.update({
   id: '/dgd-methodology',
   path: '/dgd-methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GoogleCalendarCallbackRoute = GoogleCalendarCallbackRouteImport.update({
+  id: '/google-calendar-callback',
+  path: '/google-calendar-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -1577,6 +1583,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/dgd-methodology': typeof DgdMethodologyRoute
+  '/google-calendar-callback': typeof GoogleCalendarCallbackRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1815,6 +1822,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/dgd-methodology': typeof DgdMethodologyRoute
+  '/google-calendar-callback': typeof GoogleCalendarCallbackRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -2047,6 +2055,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/auth-callback': typeof AuthCallbackRoute
   '/dgd-methodology': typeof DgdMethodologyRoute
+  '/google-calendar-callback': typeof GoogleCalendarCallbackRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -2287,6 +2296,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/auth-callback'
     | '/dgd-methodology'
+    | '/google-calendar-callback'
     | '/mcp'
     | '/reset-password'
     | '/sitemap.xml'
@@ -2525,6 +2535,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/auth-callback'
     | '/dgd-methodology'
+    | '/google-calendar-callback'
     | '/mcp'
     | '/reset-password'
     | '/sitemap.xml'
@@ -2756,6 +2767,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/auth-callback'
     | '/dgd-methodology'
+    | '/google-calendar-callback'
     | '/mcp'
     | '/reset-password'
     | '/sitemap.xml'
@@ -2996,6 +3008,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   DgdMethodologyRoute: typeof DgdMethodologyRoute
+  GoogleCalendarCallbackRoute: typeof GoogleCalendarCallbackRoute
   McpRoute: typeof McpRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -3069,6 +3082,13 @@ declare module '@tanstack/react-router' {
       path: '/dgd-methodology'
       fullPath: '/dgd-methodology'
       preLoaderRoute: typeof DgdMethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/google-calendar-callback': {
+      id: '/google-calendar-callback'
+      path: '/google-calendar-callback'
+      fullPath: '/google-calendar-callback'
+      preLoaderRoute: typeof GoogleCalendarCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -5233,6 +5253,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   DgdMethodologyRoute: DgdMethodologyRoute,
+  GoogleCalendarCallbackRoute: GoogleCalendarCallbackRoute,
   McpRoute: McpRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

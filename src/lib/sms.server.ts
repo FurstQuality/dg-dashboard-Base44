@@ -1,7 +1,5 @@
-// Server-only SMS helper. Uses the Lovable Twilio connector gateway when a
-// Twilio connection is linked to this project (managed auth via
-// TWILIO_API_KEY + LOVABLE_API_KEY). Falls back to no-op with a clear reason
-// so the app keeps working when SMS isn't configured yet.
+// Server-only SMS delivery. Direct account credentials take priority.
+import { smsProvider } from "./service-providers";
 
 export type SendSmsResult =
   | { sent: true; sid: string }
@@ -19,24 +17,25 @@ function normalizeE164(raw: string): string | null {
 }
 
 export function isSmsConfigured(): boolean {
-  return Boolean(
-    process.env.LOVABLE_API_KEY &&
-    process.env.TWILIO_API_KEY &&
-    (process.env.TWILIO_FROM_NUMBER || process.env.TWILIO_MESSAGING_SERVICE_SID),
-  );
+  const provider = smsProvider(process.env);
+  return provider.keys.every(key => !!process.env[key]?.trim()) &&
+    !!(process.env.TWILIO_FROM_NUMBER?.trim() || process.env.TWILIO_MESSAGING_SERVICE_SID?.trim());
 }
 
 export async function sendSms(to: string, body: string): Promise<SendSmsResult> {
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  const twilioKey = process.env.TWILIO_API_KEY;
-  const from = process.env.TWILIO_FROM_NUMBER;
-  const msgService = process.env.TWILIO_MESSAGING_SERVICE_SID;
-  if (!lovableKey || !twilioKey || (!from && !msgService)) {
+  const provider = smsProvider(process.env);
+  const from = process.env.TWILIO_FROM_NUMBER?.trim();
+  const msgService = process.env.TWILIO_MESSAGING_SERVICE_SID?.trim();
+  if (!isSmsConfigured()) {
     return { sent: false, reason: "not_configured" };
   }
 
   const e164 = normalizeE164(to);
   if (!e164) return { sent: false, reason: "invalid_number" };
+  const account = process.env.TWILIO_ACCOUNT_SID?.trim();
+  if (provider.id === "twilio" && !/^AC[0-9a-f]{32}$/i.test(account ?? "")) {
+    return { sent: false, reason: "not_configured" };
+  }
 
   const params = new URLSearchParams();
   params.set("To", e164);
@@ -45,24 +44,28 @@ export async function sendSms(to: string, body: string): Promise<SendSmsResult> 
   params.set("Body", body.slice(0, 1500));
 
   try {
-    // Gateway automatically prepends /2010-04-01/Accounts/{AccountSid}
-    const res = await fetch("https://connector-gateway.lovable.dev/twilio/Messages.json", {
+    const endpoint = provider.id === "twilio"
+      ? `https://api.twilio.com/2010-04-01/Accounts/${account}/Messages.json`
+      : "https://connector-gateway.lovable.dev/twilio/Messages.json";
+    const authHeaders: Record<string, string> = provider.id === "twilio"
+      ? { Authorization: `Basic ${Buffer.from(`${process.env.TWILIO_API_KEY!.trim()}:${process.env.TWILIO_API_SECRET!.trim()}`).toString("base64")}` }
+      : { Authorization: `Bearer ${process.env.LOVABLE_API_KEY!.trim()}`, "X-Connection-Api-Key": process.env.TWILIO_API_KEY!.trim() };
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": twilioKey,
+        ...authHeaders,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: params.toString(),
+      signal: AbortSignal.timeout(20_000), redirect: "error",
     });
     if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      console.error(`[sms] Twilio gateway ${res.status}: ${text}`);
-      return { sent: false, reason: "provider_error", error: text.slice(0, 300) };
+      return { sent: false, reason: "provider_error", error: "SMS provider declined the request." };
     }
     const json = (await res.json()) as { sid?: string };
-    return { sent: true, sid: json.sid ?? "" };
-  } catch (err: any) {
-    return { sent: false, reason: "provider_error", error: err?.message?.slice(0, 300) };
+    if (!json.sid) return { sent: false, reason: "provider_error", error: "SMS provider returned no message receipt." };
+    return { sent: true, sid: json.sid };
+  } catch {
+    return { sent: false, reason: "provider_error", error: "SMS delivery could not be confirmed." };
   }
 }

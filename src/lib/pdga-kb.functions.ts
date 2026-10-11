@@ -1,3 +1,4 @@
+import { firecrawlRequest, isFirecrawlConfigured } from "@/lib/firecrawl.server";
 /**
  * PDGA Knowledgebase — server functions.
  *
@@ -19,7 +20,6 @@ import {
   type ParsedEvent,
 } from "./pdga-kb-parsers";
 
-const FIRECRAWL_GATEWAY = "https://connector-gateway.lovable.dev/firecrawl/v2";
 
 // ~ 1 request per 4 s minimum, jittered 3–8s.
 const MIN_INTERVAL_MS = 4000;
@@ -30,25 +30,15 @@ async function firecrawlScrape(
   url: string,
   formats: ("markdown" | "html")[] = ["markdown", "html"],
 ): Promise<{ markdown?: string; html?: string; status: number }> {
-  const lovable = process.env.LOVABLE_API_KEY;
-  const conn = process.env.FIRECRAWL_API_KEY;
-  if (!lovable || !conn) throw new Error("Firecrawl connector not configured");
+  if (!isFirecrawlConfigured()) throw new Error("Firecrawl connector not configured");
 
-  const res = await fetch(`${FIRECRAWL_GATEWAY}/scrape`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovable}`,
-      "X-Connection-Api-Key": conn,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  const res = await firecrawlRequest("/scrape", {
       url,
       formats,
       onlyMainContent: false,
       waitFor: 500,
       location: { country: "US", languages: ["en"] },
-    }),
-  });
+    });
   const body = await res.text();
   if (!res.ok) {
     return { status: res.status };

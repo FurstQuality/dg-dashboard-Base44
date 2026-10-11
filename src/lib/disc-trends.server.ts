@@ -1,3 +1,4 @@
+import { firecrawlRequest } from "./firecrawl.server";
 /**
  * Disc market trend ingest.
  * Server-only: scrapes the published weekly best-seller rankings (rank, flight
@@ -19,34 +20,9 @@ export type DiscTrendRecord = {
   description: string | null;
 };
 
-const GATEWAY = "https://connector-gateway.lovable.dev/firecrawl/v2";
-const DIRECT = "https://api.firecrawl.dev/v2";
 const SOURCE_URL = "https://infinitediscs.com/top-selling/discs-last-week";
 
-function firecrawlRequest(path: string, body: unknown): Promise<Response> {
-  const key = process.env.FIRECRAWL_API_KEY;
-  if (!key) throw new Error("Disc data service is not connected yet.");
 
-  if (key.startsWith("fc-")) {
-    return fetch(`${DIRECT}${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify(body),
-    });
-  }
-
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  if (!lovableKey) throw new Error("Disc data service is not connected yet.");
-  return fetch(`${GATEWAY}${path}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": key,
-    },
-    body: JSON.stringify(body),
-  });
-}
 
 async function scrapeMarkdown(url: string): Promise<string> {
   const res = await firecrawlRequest("/scrape", {
@@ -55,8 +31,7 @@ async function scrapeMarkdown(url: string): Promise<string> {
     onlyMainContent: true,
   });
   if (!res.ok) {
-    const text = await res.text();
-    console.error(`Disc trend scrape failed [${res.status}]: ${text}`);
+    console.error(`Disc trend scrape failed [${res.status}]`);
     throw new Error(`Could not reach the disc rankings right now (${res.status}).`);
   }
   const payload = (await res.json()) as { markdown?: string; data?: { markdown?: string } };

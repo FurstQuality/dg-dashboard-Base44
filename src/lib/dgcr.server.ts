@@ -1,3 +1,4 @@
+import { firecrawlRequest } from "./firecrawl.server";
 /**
  * Disc Golf Course Review (DGCR) ingest helpers.
  * Server-only: reads Firecrawl credentials and parses scraped course pages.
@@ -146,39 +147,13 @@ export function extractDgcrLocation(
   return null;
 }
 
-const GATEWAY = "https://connector-gateway.lovable.dev/firecrawl/v2";
-const DIRECT = "https://api.firecrawl.dev/v2";
 
-function firecrawlRequest(path: string, body: unknown): Promise<Response> {
-  const key = process.env.FIRECRAWL_API_KEY;
-  if (!key) throw new Error("Course data service is not connected yet.");
 
-  if (key.startsWith("fc-")) {
-    return fetch(`${DIRECT}${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify(body),
-    });
-  }
 
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  if (!lovableKey) throw new Error("Course data service is not configured.");
-  return fetch(`${GATEWAY}${path}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": key,
-    },
-    body: JSON.stringify(body),
-  });
-}
-
-async function callFirecrawl<T>(path: string, body: unknown): Promise<T> {
+async function callFirecrawl<T>(path: "/scrape" | "/search", body: unknown): Promise<T> {
   const res = await firecrawlRequest(path, body);
   if (!res.ok) {
-    const text = await res.text();
-    console.error(`DGCR fetch failed [${res.status}]: ${text}`);
+    console.error(`DGCR fetch failed [${res.status}]`);
     throw new Error(`Course lookup failed (${res.status}). Try again in a moment.`);
   }
   return (await res.json()) as T;

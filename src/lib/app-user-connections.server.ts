@@ -47,3 +47,25 @@ export async function deleteConnectionKeyForUser(userId: string, connectorId: st
     .eq("connector_id", connectorId);
   if (error) throw error;
 }
+
+/** Atomically claim one pending OAuth attempt so concurrent callbacks cannot replay it. */
+export async function consumeConnectionKeyForUser(userId: string, connectorId: string): Promise<string | null> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.from("app_user_connections")
+    .delete().eq("user_id", userId).eq("connector_id", connectorId)
+    .select("connection_key_ciphertext").maybeSingle();
+  if (error) throw new Error("Could not complete the calendar connection. Please try again.");
+  return data ? decryptConnectionKey(data.connection_key_ciphertext) : null;
+}
+
+/** A refresh cannot recreate a connection deleted or replaced while it was in flight. */
+export async function replaceConnectionKeyForUser(userId: string, connectorId: string, expected: string, next: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.from("app_user_connections").select("connection_key_ciphertext")
+    .eq("user_id", userId).eq("connector_id", connectorId).maybeSingle();
+  if (error || !data || decryptConnectionKey(data.connection_key_ciphertext) !== expected) throw new Error("Calendar connection changed. Please try again.");
+  const result = await supabaseAdmin.from("app_user_connections").update({ connection_key_ciphertext: encryptConnectionKey(next), updated_at: new Date().toISOString() })
+    .eq("user_id", userId).eq("connector_id", connectorId).eq("connection_key_ciphertext", data.connection_key_ciphertext)
+    .select("user_id").maybeSingle();
+  if (result.error || !result.data) throw new Error("Calendar connection changed. Please try again.");
+}

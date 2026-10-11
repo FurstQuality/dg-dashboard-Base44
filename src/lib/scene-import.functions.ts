@@ -1,3 +1,4 @@
+import { firecrawlRequest, isFirecrawlConfigured, archiveSourceHtml } from "./firecrawl.server";
 /**
  * Disc Golf Scene importers — clubs and player profiles.
  *
@@ -17,50 +18,15 @@ import { extractAboutText } from "@/lib/event-about";
 /* ---------------- fetch (Firecrawl if wired, plain fetch otherwise) ---- */
 
 async function fetchHtml(url: string): Promise<string> {
-  const lovable = process.env.LOVABLE_API_KEY;
-  const conn = process.env.FIRECRAWL_API_KEY;
-  if (lovable && conn && conn.startsWith("lovc_")) {
+  if (isFirecrawlConfigured()) {
     try {
-      const res = await fetch("https://connector-gateway.lovable.dev/firecrawl/v2/scrape", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${lovable}`,
-          "X-Connection-Api-Key": conn,
-        },
-        body: JSON.stringify({ url, formats: ["rawHtml", "html"], onlyMainContent: false }),
-      });
+      const res = await firecrawlRequest("/scrape", { url, formats: ["rawHtml", "html"], onlyMainContent: false });
       if (res.ok) {
-        const body = (await res.json()) as {
-          data?: { rawHtml?: string; html?: string };
-          rawHtml?: string;
-          html?: string;
-        };
-        const html = body.rawHtml ?? body.html ?? body.data?.rawHtml ?? body.data?.html ?? null;
-        if (html) return html;
+        const payload = await res.json();
+        const html = payload.data?.rawHtml ?? payload.data?.html ?? payload.rawHtml ?? payload.html;
+        if (typeof html === "string" && html) return html;
       }
-    } catch {
-      /* fall through */
-    }
-  } else if (conn && conn.startsWith("fc-")) {
-    try {
-      const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${conn}` },
-        body: JSON.stringify({ url, formats: ["rawHtml", "html"], onlyMainContent: false }),
-      });
-      if (res.ok) {
-        const body = (await res.json()) as {
-          data?: { rawHtml?: string; html?: string };
-          rawHtml?: string;
-          html?: string;
-        };
-        const html = body.rawHtml ?? body.html ?? body.data?.rawHtml ?? body.data?.html ?? null;
-        if (html) return html;
-      }
-    } catch {
-      /* fall through */
-    }
+    } catch { /* A supported public source can still be read directly. */ }
   }
   const res = await fetch(url, {
     headers: {
@@ -70,7 +36,7 @@ async function fetchHtml(url: string): Promise<string> {
     redirect: "follow",
   });
   if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
-  return await res.text();
+  return archiveSourceHtml(url, await res.text());
 }
 
 /* --------------------------- helpers --------------------------- */

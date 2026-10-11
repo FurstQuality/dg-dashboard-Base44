@@ -8,6 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   startGoogleCalendarConnect,
+  completeGoogleCalendarConnect,
   saveGoogleCalendarConnection,
   disconnectGoogleCalendar,
   getCalendarConnectionStatus,
@@ -18,6 +19,7 @@ import {
   importFromRegistrations,
 } from "@/lib/calendar-sync.functions";
 import { connectAppUser } from "@/integrations/lovable/appUserConnectorClient";
+import { connectDirectCalendar } from "@/lib/calendar-popup";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +40,7 @@ export function CalendarSyncPanel({ onChanged }: { onChanged: () => void }) {
   const qc = useQueryClient();
   const statusFn = useServerFn(getCalendarConnectionStatus);
   const startConnect = useServerFn(startGoogleCalendarConnect);
+  const completeConnect = useServerFn(completeGoogleCalendarConnect);
   const saveConn = useServerFn(saveGoogleCalendarConnection);
   const disconnect = useServerFn(disconnectGoogleCalendar);
   const pull = useServerFn(syncGoogleCalendarPull);
@@ -68,6 +71,12 @@ export function CalendarSyncPanel({ onChanged }: { onChanged: () => void }) {
   async function handleGoogleConnect() {
     setConnecting(true);
     try {
+      if (status?.provider === "google") {
+        await connectDirectCalendar(
+          () => startConnect({ data: window.location.origin }),
+          (data) => completeConnect({ data }),
+        );
+      } else {
       const result = await connectAppUser({
         connectorId: "google_calendar",
         gatewayBaseUrl: GATEWAY_BASE_URL,
@@ -76,6 +85,7 @@ export function CalendarSyncPanel({ onChanged }: { onChanged: () => void }) {
       if (!result.success) throw new Error(result.error ?? "Sign-in failed");
       if (!result.connectionAPIKey) throw new Error("No connection key returned");
       await saveConn({ data: { connectionAPIKey: result.connectionAPIKey } });
+      }
       toast.success("Google Calendar connected");
       invalidate();
       // Auto-pull once
@@ -156,7 +166,7 @@ export function CalendarSyncPanel({ onChanged }: { onChanged: () => void }) {
             tournaments you register for out.
           </p>
           {!googleConnected ? (
-            <Button onClick={handleGoogleConnect} disabled={connecting} className="w-full">
+            <Button onClick={handleGoogleConnect} disabled={connecting || !status} className="w-full">
               <LinkIcon className="mr-2 h-4 w-4" />
               {connecting ? "Opening Google…" : "Connect Google Calendar"}
             </Button>

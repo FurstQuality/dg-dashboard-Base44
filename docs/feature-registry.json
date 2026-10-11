@@ -2688,6 +2688,18 @@
   ]
  },
  {
+  "feature_id": "google-calendar-callback",
+  "route": "/google-calendar-callback",
+  "file": "src/routes/google-calendar-callback.tsx",
+  "auth_required": false,
+  "admin_only": false,
+  "status": "LIVE",
+  "classification": "CORE",
+  "redirect_to": null,
+  "linked_from_app": true,
+  "direct_tables": []
+ },
+ {
   "feature_id": "root",
   "route": "/",
   "file": "src/routes/index.tsx",

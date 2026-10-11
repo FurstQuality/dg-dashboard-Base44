@@ -1,3 +1,4 @@
+import { firecrawlRequest, isFirecrawlConfigured } from "@/lib/firecrawl.server";
 /**
  * Real-world data connectors:
  *  - Firecrawl-powered scraping for Facebook pages, PDGA course pages, UDisc course pages
@@ -10,7 +11,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const FIRECRAWL_GATEWAY = "https://connector-gateway.lovable.dev/firecrawl/v2";
 const OVERPASS_ENDPOINTS = [
   "https://overpass-api.de/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
@@ -22,21 +22,11 @@ const OPEN_METEO_HISTORY = "https://archive-api.open-meteo.com/v1/archive";
 /* --------------------------- Firecrawl helper --------------------------- */
 
 async function firecrawlScrape(url: string, formats: string[] = ["markdown", "html"]) {
-  const lovable = process.env.LOVABLE_API_KEY;
-  const conn = process.env.FIRECRAWL_API_KEY;
-  if (!lovable || !conn) throw new Error("Firecrawl connector is not configured");
+  if (!isFirecrawlConfigured()) throw new Error("Firecrawl connector is not configured");
 
-  const res = await fetch(`${FIRECRAWL_GATEWAY}/scrape`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovable}`,
-      "X-Connection-Api-Key": conn,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ url, formats, onlyMainContent: false }),
-  });
+  const res = await firecrawlRequest("/scrape", { url, formats, onlyMainContent: false });
+  if (!res.ok) throw new Error(`Source lookup failed (${res.status}). Please try again.`);
   const body = await res.text();
-  if (!res.ok) throw new Error(`Firecrawl ${res.status}: ${body.slice(0, 300)}`);
   const json = JSON.parse(body);
   const data = json.data ?? json;
   return {
