@@ -24,6 +24,10 @@ test("release fingerprint changes with source, never includes credentials or loc
     const withDeployment = await sourceFingerprint(root);
     await writeFile(join(root, "vite.base44.config.ts"), "export default {};");
     assert.notEqual((await sourceFingerprint(root)).hash, withDeployment.hash);
+    const beforeMigration = await sourceFingerprint(root);
+    await mkdir(join(root, "drizzle/migrations"), { recursive: true });
+    await writeFile(join(root, "drizzle/migrations/example.sql"), "select 1;");
+    assert.notEqual((await sourceFingerprint(root)).hash, beforeMigration.hash);
   } finally {
     if (
       !resolve(root).startsWith(resolve(tmpdir()) + "\\") &&

@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.block_quarantined_import() FROM PUBLIC, anon, authenticated;

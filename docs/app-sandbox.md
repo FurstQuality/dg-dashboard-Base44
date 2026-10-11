@@ -2,6 +2,8 @@
 
 ## Current status — October 9, 2026
 
+For editing in both Base44 and Codex, use [the shared development workflow](base44-codex-workflow.md). The latest verification and unresolved connection checks are recorded in [app verification progress](app-verification-progress.md). The current direct sandbox calls time out; preserve the existing cloud checkpoint and resolve access before transferring new source.
+
 The user selected Base44's own preview and Publish workflow and cancelled the separate local-preview setup. Do not provision another preview database or make the local sandbox a prerequisite for this migration. The existing `/admin/sandbox` implementation is preserved as an optional tool; it is not the selected deployment workflow. Reading, saving or checking local connection settings still requires the server to verify the caller's super-admin role.
 
 The user authorized a fresh Base44 app using the existing DG Dashboard source. The new [app dashboard](https://app.base44.com/apps/6ac96e8c9295eff8becd8869/editor/preview) belongs in **Mike's Workspace** (`69f19bca9bb88d5af75fba89`), whose `elite_yearly` membership was verified through the freshly authenticated CLI. Base44 initially created it in the separate DG Dashboard – Powered by SmartCaddy workspace (`6a235274ef69a7f2246a32ba`), causing `PREMIUM_REQUIRED`. Moving the new app to Mike's Workspace resolved sandbox access. No additional subscription is required. The old app ID `6ac9557772bd04647013b3d2` and its public URL are no longer the migration target.

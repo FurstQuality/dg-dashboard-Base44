@@ -4,9 +4,9 @@ import publicConfig from "../deployment/base44/public-config.json";
 // Base44's Worker bindings stay on the server. Only the explicitly public
 // Supabase URL/key are also compiled into the browser by vite.base44.config.ts.
 const serverSettings = [
-  "APP_ORIGIN",
+  "APP_ORIGIN", "PUBLIC_APP_URL",
   "SUPABASE_SERVICE_ROLE_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "IAP_WEBHOOK_SECRET",
-  "OPENAI_API_KEY", "RESEND_API_KEY", "FIRECRAWL_API_KEY",
+  "OPENAI_API_KEY", "OPENAI_MODEL", "RESEND_API_KEY", "EMAIL_FROM", "FIRECRAWL_API_KEY",
   "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REDIRECT_URI",
   "VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY", "VAPID_SUBJECT",
   "GITHUB_TOKEN", "GITHUB_REPOSITORY", "GITHUB_BRANCH", "SUPABASE_MANAGEMENT_TOKEN",

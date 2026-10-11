@@ -1,0 +1,2 @@
+ALTER TABLE public.hole_baskets ADD COLUMN IF NOT EXISTS split_point jsonb;
+COMMENT ON COLUMN public.hole_baskets.split_point IS 'Point [lat,lng] on the main fairway where this extra basket''s fairway branches off; null = nearest point near the basket.';

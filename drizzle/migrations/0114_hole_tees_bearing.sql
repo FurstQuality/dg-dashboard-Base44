@@ -1,0 +1,2 @@
+ALTER TABLE public.hole_tees ADD COLUMN IF NOT EXISTS bearing smallint CHECK (bearing IS NULL OR (bearing >= 0 AND bearing < 360));
+COMMENT ON COLUMN public.hole_tees.bearing IS 'Tee pad facing in degrees; null = face down its own fairway.';

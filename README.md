@@ -22,6 +22,8 @@ npm run dev -- --host 127.0.0.1 --port 5180
 
 Configure direct GitHub and Supabase management access in **Admin → Platform operations → Connections**. Saving a connection verifies provider access; it does not copy data, change the app database, or deploy the app. Google sign-in requires the Google provider and callback URLs configured in Supabase Auth.
 
+The full application is also imported into [DG Dashboard in Mike’s Base44 workspace](https://app.base44.com/apps/6ac96e8c9295eff8becd8869/editor/preview). Follow the [Base44 and Codex workflow](docs/base44-codex-workflow.md) for branch-based development, conflict checks, guarded source transfers and explicit publishing. Use `npm run base44:status -- --branch main` before transferring changes; the complete release review is `npm run release:check`.
+
 ## Validation
 
 ```sh

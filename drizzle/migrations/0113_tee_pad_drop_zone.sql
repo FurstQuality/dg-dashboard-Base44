@@ -1,0 +1,2 @@
+ALTER TABLE public.hole_tees ADD COLUMN is_drop_zone boolean NOT NULL DEFAULT false;
+COMMENT ON COLUMN public.hole_tees.is_drop_zone IS 'This tee pad is played as a drop zone (DZ) rather than a regular tee';

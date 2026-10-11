@@ -1,0 +1,1 @@
+UPDATE public.external_rounds SET round_rating = NULL WHERE source = 'udisc' AND round_rating IS NOT NULL AND (round_rating < 150 OR round_rating > 350);

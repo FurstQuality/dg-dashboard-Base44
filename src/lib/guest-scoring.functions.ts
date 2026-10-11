@@ -18,8 +18,6 @@ import {
   type JoinCodeInfo,
 } from "@/lib/guest-scoring";
 
-const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const AI_MODEL = "google/gemini-2.5-flash";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -777,9 +775,6 @@ export const askGuestCaddy = createServerFn({ method: "POST" })
         upgrade: true,
       };
     }
-    const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) throw new Error("The caddy is offline right now.");
-
     const target = await describeTarget(code);
     const holes = await loadHoles(target.layoutId);
     const hole = data.hole_number ? holes.find((h) => h.number === data.hole_number) : undefined;
@@ -792,26 +787,15 @@ export const askGuestCaddy = createServerFn({ method: "POST" })
 
     let reply = "";
     try {
-      const resp = await fetch(AI_GATEWAY, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: AI_MODEL,
-          stream: false,
-          messages: [
-            { role: "system", content: CADDY_SYSTEM },
-            { role: "system", content: context },
-            { role: "user", content: data.question },
-          ],
-        }),
-      });
-      if (!resp.ok) throw new Error(String(resp.status));
-      const json: any = await resp.json();
-      reply = json?.choices?.[0]?.message?.content ?? "";
+      const { requestAceReply } = await import("./ace-provider.server");
+      reply = await requestAceReply([
+        { role: "system", content: CADDY_SYSTEM },
+        { role: "system", content: context },
+        { role: "user", content: data.question },
+      ]);
     } catch {
       throw new Error("The caddy couldn't answer that just now. Try again in a moment.");
     }
-    if (!reply) reply = "Try rephrasing that — I didn't have enough to go on.";
 
     await db
       .from("guest_scorers")

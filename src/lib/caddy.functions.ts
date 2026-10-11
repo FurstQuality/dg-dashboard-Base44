@@ -4,9 +4,6 @@ import { z } from "zod";
 import { resolveAceAccess } from "./ace-tier";
 import { answerLocally } from "./ace-local";
 
-const MODEL = "google/gemini-2.5-flash";
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-
 export type CaddyMessage = {
   id: string;
   role: "user" | "assistant" | "system";
@@ -262,7 +259,6 @@ export const askCaddy = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context as any;
     const access = resolveAceAccess(userId);
-    const apiKey = process.env.LOVABLE_API_KEY;
 
     // Ensure conversation
     let conversationId = data.conversationId;
@@ -310,8 +306,6 @@ export const askCaddy = createServerFn({ method: "POST" })
       return { conversationId, reply, error: false, tier: access.tier, source: "local" as const };
     }
 
-    if (!apiKey) throw new Error("AI is not configured (missing LOVABLE_API_KEY).");
-
     // Fetch prior turns + build context
     const [priorR, ctxStr] = await Promise.all([
       supabase
@@ -319,7 +313,7 @@ export const askCaddy = createServerFn({ method: "POST" })
         .select("role, content")
         .eq("conversation_id", conversationId)
         .eq("user_id", userId)
-        .order("created_at", { ascending: true })
+        .order("created_at", { ascending: false })
         .limit(40),
       buildUserContext(supabase, userId),
     ]);
@@ -340,45 +334,27 @@ export const askCaddy = createServerFn({ method: "POST" })
       knowledgeStr = "";
     }
 
-    const prior = (priorR.data ?? []) as { role: string; content: string }[];
+    // Fetch the latest turns, then restore chronological order. The old ascending
+    // limit silently dropped every new question once a chat exceeded 40 messages.
+    const prior = [...(priorR.data ?? [])].reverse() as { role: string; content: string }[];
 
-    const messages = [
+    const messages: import("./ace-provider.server").AceTurn[] = [
       { role: "system", content: SYSTEM_PROMPT },
       { role: "system", content: ctxStr },
-      ...(knowledgeStr ? [{ role: "system", content: knowledgeStr }] : []),
+      ...(knowledgeStr ? [{ role: "system" as const, content: knowledgeStr }] : []),
       // Only user/assistant turns from history; stored "system" rows are never trusted.
       ...prior
         .filter((m) => m.role === "user" || m.role === "assistant")
-        .map((m) => ({ role: m.role, content: m.content })),
+        .map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
     ];
 
     let assistantText = "";
+    const { requestAceReply, AceProviderError } = await import("./ace-provider.server");
     try {
-      const resp = await fetch(GATEWAY, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({ model: MODEL, messages, stream: false }),
-      });
-      if (!resp.ok) {
-        const text = await resp.text().catch(() => "");
-        if (resp.status === 429)
-          throw new Error("Ace is catching its breath (rate limited). Try again in a moment.");
-        if (resp.status === 402)
-          throw new Error(
-            "AI credits exhausted for this workspace. Add credits from workspace billing.",
-          );
-        throw new Error(`AI gateway error (${resp.status}): ${text.slice(0, 200)}`);
-      }
-      const json: any = await resp.json();
-      assistantText = json?.choices?.[0]?.message?.content ?? "";
-      if (!assistantText)
-        assistantText = "Sorry — I couldn't come up with an answer. Try rephrasing?";
-    } catch (err: any) {
+      assistantText = await requestAceReply(messages);
+    } catch (err) {
       // Save error as an assistant message so UI can show it
-      const msg = `⚠️ ${err?.message ?? "Ace hit a snag."}`;
+      const msg = `⚠️ ${err instanceof AceProviderError ? err.message : "Ace hit a snag. Try again in a moment."}`;
       await supabase.from("caddy_messages").insert({
         conversation_id: conversationId,
         user_id: userId,

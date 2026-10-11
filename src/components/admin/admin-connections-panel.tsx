@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BASE44_WORKSPACE } from "@/lib/base44-workspace";
 import {
   CONNECTION_SUGGESTIONS,
   connectionCredentialIssue,
@@ -85,6 +86,31 @@ export function AdminConnectionsPanel() {
           switched over. Saving a connection does not publish or migrate the app.
         </p>
       </div>
+      <section aria-label="Base44 and Codex development" className="rounded-xl border bg-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-semibold">Build with Base44 and Codex</h3>
+          <ProviderLink href={BASE44_WORKSPACE.editorUrl}>Open Base44 editor</ProviderLink>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Use DG Dashboard in Mike’s Workspace. Connect its repository in Base44’s Dashboard →
+          GitHub so both editors share changes. The GitHub access setting below checks this app’s
+          access; it does not turn on Base44’s code sync.
+        </p>
+        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm">
+          <li>Create a feature branch for each task when working in both editors.</li>
+          <li>Review and merge completed changes into main, then check the Base44 preview.</li>
+          <li>Select Publish in Base44 when the reviewed version is ready for the public app.</li>
+        </ol>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Direct Codex edits in the same Base44 sandbox temporarily pause its builder. Branches
+          separate code changes; they still use the configured Supabase data.
+        </p>
+        <div className="mt-3">
+          <ProviderLink href="https://docs.base44.com/Building-your-app/working-with-branches">
+            How Base44 branches work
+          </ProviderLink>
+        </div>
+      </section>
       <div className="grid items-start gap-5 xl:grid-cols-2">
         {(["github", "supabase"] as const).map((provider) => (
           <ConnectionCard
@@ -207,7 +233,7 @@ export function ConnectionCard({ connection, canSave, onSave, onTest, onReload }
         <ProviderLink href={settingsUrl}>1. Create a {name} personal access token</ProviderLink>
         <p className="mt-2 text-xs text-muted-foreground">
           {github
-            ? "Choose the repository owner, select only Disc-Golf-Dashboard, and give Metadata and Contents read access. The token starts with github_pat_ (or ghp_ for a classic token)."
+            ? "Choose the repository owner, select the repository entered below, and give Metadata and Contents read access. The token starts with github_pat_ (or ghp_ for a classic token)."
             : "Open your account’s Access tokens page, choose this project, and allow Project Settings read access. The token starts with sbp_."}
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
@@ -219,9 +245,9 @@ export function ConnectionCard({ connection, canSave, onSave, onTest, onReload }
               Permissions for migrating code and opening pull requests
             </summary>
             <p className="mt-2 text-xs text-muted-foreground">
-              For code updates, select only Disc-Golf-Dashboard and allow Contents, Pull requests,
-              and Workflows read and write. Metadata stays read-only. Workflows access is needed
-              for the app’s automated validation file.
+              For code updates, select the repository entered below and allow Contents, Pull
+              requests, and Workflows read and write. Metadata stays read-only. Workflows access is
+              needed for the app’s automated validation file.
             </p>
             <div className="mt-2">
               <ProviderLink href="https://github.com/settings/personal-access-tokens/new?name=DG%20Dashboard%20migration&target_name=FurstQuality&expires_in=30&contents=write&pull_requests=write&workflows=write&metadata=read">
@@ -229,9 +255,9 @@ export function ConnectionCard({ connection, canSave, onSave, onTest, onReload }
               </ProviderLink>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Test saved connection verifies repository read access. It does not prove that a
-              token can push code or publish the app. Save the replacement token here; do not
-              paste it into chat.
+              Test saved connection verifies repository read access. It does not prove that a token
+              can push code or publish the app. Save the replacement token here; do not paste it
+              into chat.
             </p>
           </details>
         )}

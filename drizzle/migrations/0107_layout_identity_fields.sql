@@ -1,0 +1,1 @@
+ALTER TABLE public.course_layouts ADD COLUMN IF NOT EXISTS description text, ADD COLUMN IF NOT EXISTS public_notes text, ADD COLUMN IF NOT EXISTS manager_notes text, ADD COLUMN IF NOT EXISTS season_notes text;

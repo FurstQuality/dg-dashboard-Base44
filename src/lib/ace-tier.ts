@@ -3,7 +3,7 @@
  *
  * Product model:
  * - Free tier: local answer database only (no AI gateway calls, no cost).
- * - Paid tier: full Ace caddy powered by the Lovable AI gateway,
+ * - Paid tier: full Ace caddy powered by the configured server AI provider,
  *   personalized to the player's bag/rounds/rating, plus access to
  *   the full suite of premium DG Dashboard features.
  *

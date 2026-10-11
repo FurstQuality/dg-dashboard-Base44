@@ -26,10 +26,6 @@ const CreateInvitesSchema = z.object({
   invites: z.array(InviteTargetSchema).min(1).max(200),
 });
 
-function publicOrigin(): string {
-  return process.env.PUBLIC_APP_URL ?? "https://dgdashboard.app";
-}
-
 function kindLabel(k: string) {
   return k === "community"
     ? "Community event"
@@ -111,6 +107,10 @@ export const createEventInvites = createServerFn({ method: "POST" })
       return { created: 0, emailed: 0, notified: 0, skipped: data.invites.length };
     }
 
+    const { publicAppOrigin } = await import("./public-app-origin.server");
+    // Validate before inserting, so a missing host setting cannot strand new
+    // invitations or send their private token to a different app's domain.
+    const origin = publicAppOrigin();
     const { data: inserted, error } = await supabase
       .from("event_invites")
       .insert(rows)
@@ -128,7 +128,7 @@ export const createEventInvites = createServerFn({ method: "POST" })
         data: {
           title: `${inviterName} invited you to ${data.event_title ?? "an event"}`,
           body: data.personal_message ?? null,
-          link: `${publicOrigin()}/invite/${r.token}`,
+          link: `${origin}/invite/${r.token}`,
           event_kind: data.event_kind,
           event_id: data.event_id,
         },
@@ -152,7 +152,7 @@ export const createEventInvites = createServerFn({ method: "POST" })
               event_when: formatWhen(data.event_starts_at),
               event_where: data.event_location ?? null,
               personal_message: data.personal_message ?? null,
-              rsvp_url: `${publicOrigin()}/invite/${inv.token}`,
+              rsvp_url: `${origin}/invite/${inv.token}`,
             },
             idempotencyKey: `event-invite-${inv.id}`,
           });
@@ -201,7 +201,7 @@ export const createEventInvites = createServerFn({ method: "POST" })
         } else {
           const when = formatWhen(data.event_starts_at);
           for (const inv of withPhones) {
-            const link = `${publicOrigin()}/invite/${inv.token}`;
+            const link = `${origin}/invite/${inv.token}`;
             const bodyText = [
               `${inviterName} invited you to ${data.event_title ?? "a disc golf event"} on DG Dashboard.`,
               when ? `When: ${when}` : null,

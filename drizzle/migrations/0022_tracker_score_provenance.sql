@@ -1,0 +1,2 @@
+ALTER TABLE public.tracker_live_scores ADD COLUMN IF NOT EXISTS result_source text NOT NULL DEFAULT 'PDGA_OFFICIAL';
+ALTER TABLE public.tracker_live_scores ADD CONSTRAINT tracker_live_scores_result_source_chk CHECK (result_source IN ('PDGA_OFFICIAL','DGD_OFFICIAL','MANUAL_PRIVATE','MANUAL_PROVISIONAL'));

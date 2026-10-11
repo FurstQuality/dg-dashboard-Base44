@@ -384,7 +384,14 @@ export function AdminOperationsPage({
                         </span>
                       </div>
                       <p className="mt-3 text-sm text-muted-foreground">{connector.description}</p>
-                      <p className="mt-2 text-xs">Connection: {connector.mode}</p>
+                      <p className="mt-2 text-xs">Connection: {status?.mode ?? connector.mode}</p>
+                      {["ai", "email"].includes(connector.id) && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Set these values in the app host’s server settings (Base44 for the hosted app,
+                          or the private environment file for local development). Supabase Edge secrets
+                          do not configure this app server. No test requests or emails are sent by this page.
+                        </p>
+                      )}
                       {!!status?.missing.length && (
                         <p className="mt-2 break-all text-xs text-amber-600 dark:text-amber-400">
                           Required: {status.missing.join(", ")}
@@ -396,7 +403,7 @@ export function AdminOperationsPage({
                           href={
                             connector.id === "google-auth" && overview.data?.projectRef
                               ? `${base}/auth/providers`
-                              : connector.setup
+                              : status?.setup ?? connector.setup
                           }
                         >
                           Configure provider
@@ -590,9 +597,10 @@ export function AdminOperationsPage({
             <div className={card}>
               <h3 className="font-semibold">Authentication and transactional email</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Authentication templates and SMTP are managed by Supabase. App email still uses
-                Lovable's email integration; delivery history is available through that provider,
-                not the app database.
+                Authentication templates and SMTP are managed by Supabase. Event invitations and
+                kiosk signup emails support direct Resend delivery. Check the email connector for
+                the selected provider and missing settings; delivery and bounce history remain in
+                that provider’s dashboard.
               </p>
               <div className="mt-4 flex gap-3">
                 <External href={`${base}${overview.data?.projectRef ? "/auth/templates" : ""}`}>
